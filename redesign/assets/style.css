@@ -1220,11 +1220,17 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
 
 /* Mobile fino (≤ 480px) */
 @media (max-width: 480px) {
-  /* Nav: esconde links de texto e compacta o botão CTA */
+  /* Nav: esconde links de texto (o bloco .navauth continua visível) */
   .nav__link { display: none !important; }
   .nav__sep { display: none; }
   .nav__inner .btn { padding: 10px 14px; font-size: 14px; gap: 6px; }
   .nav__inner .btn svg { width: 16px; height: 16px; }
+
+  /* Com o bloco de conta no nav, o CTA vira redundante — o hero já tem o seu */
+  .nav__inner .navauth ~ .btn { display: none; }
+  /* Logo não pode quebrar em duas linhas */
+  .nav__inner .brand { font-size: 17px; gap: 8px; white-space: nowrap; }
+  .nav__inner .brand__logo { height: 32px; }
 
   /* Hero */
   .hero__cta { flex-direction: column; }
