@@ -458,7 +458,8 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
 .datasection { background: var(--ink); color: #fff; }
 .datasection .section__title { color: #fff; }
 .datasection .section__lead { color: rgba(255,255,255,.66); }
-.datagrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+/* 8 itens: 4 colunas fecham em duas fileiras simétricas, com folga para o texto */
+.datagrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
 .dchip {
   display: flex; align-items: center; gap: 14px;
   background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09);
@@ -524,7 +525,9 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
 .plan__v small { font-size: 17px; font-weight: 600; color: var(--text-soft); margin-right: 3px; }
 .plan__u { font-size: 13px; color: var(--text-soft); }
 .plan__u--save { color: #0e7f4e; font-weight: 700; }
-.plan__btn { margin-top: 20px; width: 100%; justify-content: center; }
+/* margin-top:auto encosta o botão no rodapé do card, alinhando todos na mesma linha */
+.plan__btn { margin-top: auto; width: 100%; justify-content: center; }
+.plan__u { display: block; min-height: 34px; margin-bottom: 20px; }
 
 /* Garantia */
 .guarantee {
