@@ -668,34 +668,36 @@
 
     h += '</div>'; // hd
 
-    // ── Corpo claro — campos gratuitos ──
-    h += '<div class="rpt__body">'
-      + '<div class="rpt__sec-label">Identificação básica</div>'
-      + '<div class="rpt__fields">';
+    // ── Corpo claro — campos gratuitos (só na prévia; o dossiê já traz tudo) ──
+    if (!uncensored) {
+      h += '<div class="rpt__body">'
+        + '<div class="rpt__sec-label">Identificação básica</div>'
+        + '<div class="rpt__fields">';
 
-    h += '<div class="rpt__field">'
-      + '<div class="rpt__field-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4M7 9h.01"/></svg></div>'
-      + '<div class="rpt__field-k">CPF</div>'
-      + '<div class="rpt__field-v">' + (uncensored ? fmtCpfFull(bd.CPF) : fmtCpf(bd.CPF)) + '</div>'
-      + '</div>';
-
-    if (nasc) {
       h += '<div class="rpt__field">'
-        + '<div class="rpt__field-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg></div>'
-        + '<div class="rpt__field-k">Nascimento</div>'
-        + '<div class="rpt__field-v">' + nasc + '</div>'
+        + '<div class="rpt__field-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4M7 9h.01"/></svg></div>'
+        + '<div class="rpt__field-k">CPF</div>'
+        + '<div class="rpt__field-v">' + fmtCpf(bd.CPF) + '</div>'
         + '</div>';
-    }
 
-    if (bd.Sexo) {
-      h += '<div class="rpt__field">'
-        + '<div class="rpt__field-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>'
-        + '<div class="rpt__field-k">Sexo</div>'
-        + '<div class="rpt__field-v rpt__field-v--text">' + sexoExt(bd.Sexo) + '</div>'
-        + '</div>';
-    }
+      if (nasc) {
+        h += '<div class="rpt__field">'
+          + '<div class="rpt__field-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg></div>'
+          + '<div class="rpt__field-k">Nascimento</div>'
+          + '<div class="rpt__field-v">' + nasc + '</div>'
+          + '</div>';
+      }
 
-    h += '</div></div>'; // fields + body
+      if (bd.Sexo) {
+        h += '<div class="rpt__field">'
+          + '<div class="rpt__field-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>'
+          + '<div class="rpt__field-k">Sexo</div>'
+          + '<div class="rpt__field-v rpt__field-v--text">' + sexoExt(bd.Sexo) + '</div>'
+          + '</div>';
+      }
+
+      h += '</div></div>'; // fields + body
+    }
 
     if (!uncensored) {
       // ── Seção bloqueada (gratuito / sem créditos) ──
