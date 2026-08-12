@@ -18,7 +18,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
-<script src="https://www.google.com/recaptcha/enterprise.js?render=6Lc7ya0qAAAAAFIT2iBWa_cGr6W0t6hGyUxJbfQ_"></script>
 <script src="assets/config.js"></script>
 </head>
 <body>
@@ -602,15 +601,7 @@
         });
       };
 
-      // reCAPTCHA quando disponível; caso contrário segue sem token
-      if (window.grecaptcha && grecaptcha.enterprise) {
-        grecaptcha.enterprise.ready(function () {
-          grecaptcha.enterprise.execute('6Lc7ya0qAAAAAFIT2iBWa_cGr6W0t6hGyUxJbfQ_', { action: 'submit' })
-            .then(doSearch).catch(function () { doSearch(''); });
-        });
-      } else {
-        doSearch('');
-      }
+      doSearch('');
     });
   });
 

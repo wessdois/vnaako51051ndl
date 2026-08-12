@@ -743,17 +743,39 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
 
 /* Mobile */
 @media (max-width: 600px) {
+  /* searchcard ocupa a largura toda sem ficar colado nas bordas */
+  .searchcard { margin: -20px 0 0; border-radius: var(--r-lg); }
+  .searchcard__pad { padding: 20px 16px; }
+
+  /* tabs menores pra caber as 4 opções */
+  .tabs { gap: 4px; padding: 4px; margin-bottom: 18px; }
+  .tabs__btn { padding: 9px 10px; font-size: 12.5px; }
+
+  /* label e input centralizados */
+  .flabel { font-size: 13.5px; margin-bottom: 8px; }
+  .finput { padding: 13px 14px; font-size: 16px; /* 16px previne zoom no iOS */ }
+
+  /* botão de pesquisa ocupa largura toda */
+  .btn--search { width: 100%; justify-content: center; }
+
+  /* subhero menos espaçoso */
+  .subhero { padding-top: calc(var(--nav-h) + 28px); padding-bottom: 40px; }
+  .subhero h1 { font-size: clamp(20px, 6vw, 28px); margin: 12px 0 8px; }
+  .subhero p { font-size: 14px; }
+  .subhero__ico { width: 48px; height: 48px; }
+
+  /* card de resultado */
   .rpt__hd { padding: 22px 20px 18px; }
   .rpt__hd-row { gap: 14px; }
   .rpt__avatar { width: 52px; height: 52px; font-size: 18px; border-radius: 14px; }
   .rpt__name { font-size: 16px; }
   .rpt__found-n { font-size: 28px; }
-  .rpt__body { padding: 20px 20px; }
+  .rpt__body { padding: 20px 16px; }
   .rpt__fields { gap: 22px; }
-  .rpt__lock-blur { grid-template-columns: repeat(2, 1fr); padding: 16px 20px 28px; }
-  .rpt__lock-wall { padding: 18px 16px; }
+  .rpt__lock-blur { grid-template-columns: repeat(2, 1fr); padding: 16px 16px 28px; }
+  .rpt__lock-wall { padding: 18px 14px; }
   .rpt__lock-title { font-size: 17px; }
-  .rpt__cta { padding: 16px 20px 22px; }
+  .rpt__cta { padding: 16px 16px 22px; }
 }
 
 /* Animação de entrada */
