@@ -1,11 +1,8 @@
 const router = require('express').Router();
-const autenticar = require('../middleware/auth');
-const validarRecaptcha = require('../middleware/recaptcha');
 const search = require('../services/searchService');
 
-// POST /api/public/dataset/people/basic/v2
-// Mesma rota que o frontend chama via jQuery AJAX
-router.post('/people/basic/v2', autenticar, validarRecaptcha, async (req, res) => {
+// POST /api/public/dataset/people/basic/v2  — rota pública (sem JWT, sem reCAPTCHA)
+router.post('/people/basic/v2', async (req, res) => {
   const { name, doc, email, phone } = req.body;
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
