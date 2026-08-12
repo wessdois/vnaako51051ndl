@@ -2,11 +2,11 @@ const router = require('express').Router();
 const { buscar, mapear } = require('../services/searchService');
 
 router.post('/people/basic/v2', async (req, res) => {
-  const { name, doc, email, phone } = req.body;
+  const { doc, rg, email, phone } = req.body;
 
   let tipo, valor;
   if (doc)        { tipo = 'cpf';      valor = doc; }
-  else if (name)  { tipo = 'nome';     valor = name; }
+  else if (rg)    { tipo = 'rg';       valor = rg; }
   else if (email) { tipo = 'email';    valor = email; }
   else if (phone) { tipo = 'telefone'; valor = phone; }
   else return res.status(400).json({ status: 'error', message: 'Informe ao menos um parâmetro' });

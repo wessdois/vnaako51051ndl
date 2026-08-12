@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Consulta por Nome | Capivara Online</title>
-<meta name="description" content="Consulte dados de pessoas por nome completo na Capivara Online. Apoio à análise de risco e prevenção a fraudes, conforme a LGPD.">
+<title>Consulta | Capivara Online</title>
+<meta name="description" content="Consulte dados de pessoas por CPF, RG, e-mail ou telefone na Capivara Online. Apoio à análise de risco e prevenção a fraudes, conforme a LGPD.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,7 +18,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
-<script src="assets/config.js"></script>
 </head>
 <body>
 
@@ -42,8 +41,8 @@
     <div class="subhero__ico">
       <svg id="subhero-ico" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
     </div>
-    <h1 id="subhero-title">Pesquisar por Nome</h1>
-    <p id="subhero-sub">Informe o nome completo para localizar registros e liberar o relatório completo.</p>
+    <h1 id="subhero-title">Pesquisar por CPF</h1>
+    <p id="subhero-sub">Busca exata pelo número do CPF da pessoa.</p>
     <div style="margin-top:18px;">
       <span class="counter">Suas pesquisas grátis: <b id="contador-label">0</b>/3</span>
     </div>
@@ -55,45 +54,20 @@
   <div class="searchcard">
     <div class="searchcard__pad">
       <nav class="tabs">
-        <button type="button" class="tabs__btn is-active" data-tab="name">Nome</button>
-        <button type="button" class="tabs__btn" data-tab="doc">CPF</button>
+        <button type="button" class="tabs__btn is-active" data-tab="doc">CPF</button>
+        <button type="button" class="tabs__btn" data-tab="rg">RG</button>
         <button type="button" class="tabs__btn" data-tab="email">E-mail</button>
         <button type="button" class="tabs__btn" data-tab="phone">Telefone</button>
       </nav>
 
       <form id="form-search" method="post">
-        <label class="flabel" id="search-label" for="in-search">Insira o Nome Completo que você quer pesquisar</label>
-        <input id="in-search" class="finput" type="text" name="name" placeholder="Ex.: João da Silva Santos" value="" autocomplete="off" inputmode="text">
-
-        <details class="filters" id="filters-section">
-          <summary>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3z"/></svg>
-            Filtrar sua busca
-          </summary>
-          <div class="filters__grid">
-            <div>
-              <label>UF/Estado</label>
-              <select name="state">
-                <option value="">Selecione</option>
-                <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option>
-                <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
-                <option>MS</option><option>MT</option><option>MG</option><option>PA</option><option>PB</option>
-                <option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
-                <option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option>
-                <option>SE</option><option>TO</option>
-              </select>
-            </div>
-            <div><label>Cidade</label><input type="text" name="city"></div>
-            <div><label>Bairro</label><input type="text" name="neighborhood"></div>
-            <div><label>Data de Nasc.</label><input type="date" name="birthdate"></div>
-            <div style="grid-column: span 2;"><label>Nome da Mãe</label><input type="text" name="mothername"></div>
-          </div>
-        </details>
+        <label class="flabel" id="search-label" for="in-search">Insira o CPF que você quer pesquisar</label>
+        <input id="in-search" class="finput" type="text" name="doc" placeholder="000.000.000-00" value="" autocomplete="off" inputmode="numeric">
 
         <div style="margin-top:24px; text-align:center;">
-          <button type="submit" id="btn-search" class="btn btn--accent btn--lg">
+          <button type="submit" id="btn-search" class="btn btn--accent btn--lg btn--search">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-            <span id="btn-search-label">Pesquisar Nome</span>
+            <span id="btn-search-label">Pesquisar CPF</span>
           </button>
         </div>
       </form>
@@ -174,12 +148,12 @@
 <script>
   // ── Configuração dos tabs de busca ──
   var TAB_CFG = {
-    name:  { title: 'Pesquisar por Nome',     sub: 'Informe o nome completo para localizar registros.', label: 'Insira o Nome Completo que você quer pesquisar', ph: 'Ex.: João da Silva Santos',  type: 'text',  mode: 'text',    btn: 'Pesquisar Nome',     filters: true  },
-    doc:   { title: 'Pesquisar por CPF',      sub: 'Busca exata pelo número do CPF da pessoa.',          label: 'Insira o CPF que você quer pesquisar',          ph: '000.000.000-00',              type: 'text',  mode: 'numeric', btn: 'Pesquisar CPF',      filters: false },
-    email: { title: 'Pesquisar por E-mail',   sub: 'Descubra o titular de um endereço de e-mail.',       label: 'Insira o E-mail que você quer pesquisar',       ph: 'Ex.: joao@email.com',         type: 'email', mode: 'email',   btn: 'Pesquisar E-mail',   filters: false },
-    phone: { title: 'Pesquisar por Telefone', sub: 'Identifique o dono de um número de celular ou fixo.',label: 'Insira o Telefone que você quer pesquisar',     ph: '(11) 99999-9999',             type: 'tel',   mode: 'tel',     btn: 'Pesquisar Telefone', filters: false },
+    doc:   { title: 'Pesquisar por CPF',      sub: 'Busca exata pelo número do CPF da pessoa.',           label: 'Insira o CPF que você quer pesquisar',          ph: '000.000.000-00',    type: 'text',  mode: 'numeric', btn: 'Pesquisar CPF',      filters: false },
+    rg:    { title: 'Pesquisar por RG',       sub: 'Localize uma pessoa pelo número do RG.',              label: 'Insira o RG que você quer pesquisar',           ph: 'Ex.: 12345678',     type: 'text',  mode: 'numeric', btn: 'Pesquisar RG',       filters: false },
+    email: { title: 'Pesquisar por E-mail',   sub: 'Descubra o titular de um endereço de e-mail.',        label: 'Insira o E-mail que você quer pesquisar',       ph: 'Ex.: joao@email.com',type: 'email', mode: 'email',   btn: 'Pesquisar E-mail',   filters: false },
+    phone: { title: 'Pesquisar por Telefone', sub: 'Identifique o dono de um número de celular ou fixo.', label: 'Insira o Telefone que você quer pesquisar',     ph: '(11) 99999-9999',   type: 'tel',   mode: 'tel',     btn: 'Pesquisar Telefone', filters: false },
   };
-  var activeTab = 'name';
+  var activeTab = 'doc';
 
   function maskCpf(e) {
     var v = e.target.value.replace(/\D/g, '').slice(0, 11);
@@ -201,16 +175,12 @@
     var cfg = TAB_CFG[tab];
     var inp = document.getElementById('in-search');
 
-    // Botões
     document.querySelectorAll('.tabs__btn').forEach(function(b) {
       b.classList.toggle('is-active', b.dataset.tab === tab);
     });
 
-    // Subhero
     document.getElementById('subhero-title').textContent = cfg.title;
     document.getElementById('subhero-sub').textContent = cfg.sub;
-
-    // Formulário
     document.getElementById('search-label').textContent = cfg.label;
     inp.name = tab;
     inp.type = cfg.type;
@@ -219,10 +189,6 @@
     inp.value = '';
     document.getElementById('btn-search-label').textContent = cfg.btn;
 
-    // Filtros (só nome)
-    document.getElementById('filters-section').style.display = cfg.filters ? '' : 'none';
-
-    // Máscaras
     inp.removeEventListener('input', maskCpf);
     inp.removeEventListener('input', maskPhone);
     if (tab === 'doc')   inp.addEventListener('input', maskCpf);
@@ -235,6 +201,9 @@
   document.querySelectorAll('.tabs__btn').forEach(function(btn) {
     btn.addEventListener('click', function() { switchTab(this.dataset.tab); });
   });
+
+  // Aplica máscara de CPF desde o início (tab padrão é CPF)
+  document.getElementById('in-search').addEventListener('input', maskCpf);
 
   // Endpoint base da API — configurado em assets/config.js
   var url = (window.APP_CONFIG && window.APP_CONFIG.API_BASE ? window.APP_CONFIG.API_BASE : '') + '/';
