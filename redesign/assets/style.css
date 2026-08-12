@@ -552,6 +552,135 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
 .rcard__cta { text-align: center; }
 .rcard__cta small { display: block; margin-top: 8px; font-size: 11.5px; color: var(--slate-400); max-width: 200px; }
 
+/* =============================================================
+   CARD DE RESULTADO COMPLETO
+   ============================================================= */
+.rcard2 {
+  max-width: 820px; margin: 0 auto 20px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-xl); box-shadow: var(--sh-md); overflow: hidden;
+}
+
+/* Cabeçalho com avatar e nome */
+.rcard2__head {
+  display: flex; align-items: center; gap: 18px;
+  padding: 24px 26px 20px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--slate-050) 0%, var(--surface) 100%);
+}
+.rcard2__avatar {
+  width: 52px; height: 52px; flex: none; border-radius: 14px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-600) 100%);
+  color: #fff; font-size: 18px; font-weight: 800; letter-spacing: -0.02em;
+  box-shadow: var(--sh-sm);
+}
+.rcard2__nome {
+  font-size: 19px; font-weight: 700; letter-spacing: -0.02em; color: var(--slate-900);
+}
+.rcard2__badges {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px;
+}
+.rbadge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: var(--r-full);
+  font-size: 11.5px; font-weight: 600; font-family: var(--font-mono);
+  background: var(--slate-100); color: var(--slate-600); border: 1px solid var(--border);
+}
+.rbadge--vivo   { background: rgba(31,191,117,.1); color: #0e7f4e; border-color: rgba(31,191,117,.3); }
+.rbadge--obito  { background: rgba(239,68,68,.08); color: #b91c1c; border-color: rgba(239,68,68,.25); }
+.rbadge--vivo::before  { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+.rbadge--obito::before { content: "✕"; font-size: 9px; }
+
+/* Seção de campos visíveis (gratuitos) */
+.rcard2__free {
+  padding: 20px 26px;
+  border-bottom: 1px solid var(--border);
+}
+.rcard2__section-label {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--slate-400); margin-bottom: 14px;
+}
+.rcard2__grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px 24px;
+}
+.rcard2__field { display: flex; flex-direction: column; gap: 3px; }
+.rcard2__k {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--slate-400);
+}
+.rcard2__v {
+  font-size: 14.5px; font-weight: 600; color: var(--slate-900);
+}
+.rcard2__v--mono { font-family: var(--font-mono); font-size: 13.5px; }
+
+/* Bloco bloqueado */
+.rcard2__locked {
+  position: relative; overflow: hidden;
+}
+.rcard2__locked-inner {
+  padding: 20px 26px; display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px 24px; filter: blur(6px);
+  user-select: none; pointer-events: none;
+  opacity: .7;
+}
+.rcard2__lock-wall {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px;
+  background: linear-gradient(180deg, rgba(248,249,251,.5) 0%, rgba(248,249,251,.96) 45%);
+  padding: 20px;
+  text-align: center;
+}
+.rcard2__lock-ico {
+  width: 48px; height: 48px; border-radius: 14px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-600) 100%);
+  box-shadow: var(--sh-glow); margin-bottom: 4px;
+}
+.rcard2__lock-ico svg { width: 22px; height: 22px; stroke: #fff; }
+.rcard2__lock-title { font-size: 16px; font-weight: 700; color: var(--slate-900); }
+.rcard2__lock-desc {
+  font-size: 13px; color: var(--slate-500);
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  max-width: 400px;
+}
+.rcard2__lock-chip {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px;
+  padding: 3px 9px; border-radius: var(--r-full);
+  background: var(--surface); border: 1px solid var(--border); color: var(--slate-600);
+}
+
+/* Rodapé do card */
+.rcard2__foot {
+  padding: 18px 26px 22px; text-align: center;
+  border-top: 1px solid var(--border);
+  background: var(--slate-050);
+}
+.rcard2__foot small {
+  display: block; margin-top: 8px; font-size: 11.5px; color: var(--slate-400);
+}
+
+/* Demo badge */
+.demo-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 14px; border-radius: var(--r-full);
+  background: rgba(232,83,31,.1); border: 1px solid rgba(232,83,31,.3);
+  font-size: 12px; font-weight: 600; color: var(--accent-700);
+  font-family: var(--font-mono); margin-bottom: 16px;
+}
+
+@media (max-width: 480px) {
+  .rcard2__head { padding: 18px 18px 16px; gap: 14px; }
+  .rcard2__nome { font-size: 16px; }
+  .rcard2__free, .rcard2__locked-inner { padding: 16px 18px; }
+  .rcard2__lock-wall { padding: 16px; }
+  .rcard2__foot { padding: 16px 18px 20px; }
+}
+
 /* Modal de preços */
 .modal { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(12,10,29,.62); backdrop-filter: blur(4px); }
 .modal.is-open { display: flex; }

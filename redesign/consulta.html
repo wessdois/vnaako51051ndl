@@ -241,12 +241,6 @@
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePricingModal(); });
 
-  // ---- Render de valores censurados ----
-  function renderCensoredValue(value) {
-    if (!value) return '';
-    value = `${value}`;
-    return value.replace(/([X*]{2,})/g, '<span class="blur-x">$1</span>');
-  }
   function formatBirthDate(b) {
     if (!b) return '';
     if (b.includes('T')) b = b.split('T')[0];
@@ -254,32 +248,173 @@
     return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : b;
   }
 
-  // ---- Monta os cartões de resultado (design novo) ----
-  function insertResults(data) {
+  function fmtCpf(cpf) {
+    if (!cpf) return '—';
+    cpf = cpf.replace(/\D/g, '');
+    if (cpf.length !== 11) return cpf;
+    // Mostra 3 primeiros dígitos + máscara
+    return cpf.slice(0,3) + '.' + cpf.slice(3,6) + '.***-**';
+  }
+
+  function fmtFone(num) {
+    if (!num) return '—';
+    num = num.replace(/\D/g, '');
+    if (num.length === 11) return '(' + num.slice(0,2) + ') ' + num.slice(2,7) + '-' + num.slice(7);
+    if (num.length === 10) return '(' + num.slice(0,2) + ') ' + num.slice(2,6) + '-' + num.slice(6);
+    return num;
+  }
+
+  function fmtCep(cep) {
+    if (!cep) return '—';
+    cep = cep.replace(/\D/g, '');
+    return cep.length === 8 ? cep.slice(0,5) + '-' + cep.slice(5) : cep;
+  }
+
+  function iniciais(nome) {
+    if (!nome) return '?';
+    return nome.split(' ').filter(function(p) { return p.length > 2; })
+      .slice(0,2).map(function(p) { return p[0]; }).join('');
+  }
+
+  function sexoExt(s) {
+    return s === 'M' ? 'Masculino' : s === 'F' ? 'Feminino' : (s || '');
+  }
+
+  function blurField(label, valor) {
+    if (!valor) return '';
+    return '<div class="rcard2__field">'
+      + '<div class="rcard2__k">' + label + '</div>'
+      + '<div class="rcard2__v blur-x">' + valor + '</div>'
+      + '</div>';
+  }
+
+  // ---- Card de resultado completo ----
+  function buildCard(r, activityId, isDemo) {
+    var bd   = r.BasicData   || {};
+    var doc  = r.Documentos  || {};
+    var cont = r.Contatos    || {};
+    var ends = r.Enderecos   || [];
+
+    var ini  = iniciais(bd.Nome || '');
+    var nasc = bd.DataNascimento ? formatBirthDate(bd.DataNascimento) : null;
+    var endEx = ends[0] || {};
+    var fonePrincipal = cont.Celular || cont.Telefone || '';
+    var emailPrincipal = (cont.Emails && cont.Emails[0]) || '';
+
+    var demoBadge = isDemo
+      ? '<div style="text-align:center;padding:10px 26px 0"><span class="demo-badge">Prévia com dados de teste</span></div>'
+      : '';
+
+    return '<div class="rcard2">'
+      + demoBadge
+
+      // ── Cabeçalho ──
+      + '<div class="rcard2__head">'
+      +   '<div class="rcard2__avatar">' + ini + '</div>'
+      +   '<div>'
+      +     '<div class="rcard2__nome">' + (bd.Nome || 'Não disponível') + '</div>'
+      +     '<div class="rcard2__badges">'
+      +       (bd.Falecido
+              ? '<span class="rbadge rbadge--obito">Falecido</span>'
+              : '<span class="rbadge rbadge--vivo">Ativo</span>')
+      +       (bd.Idade   ? '<span class="rbadge">' + bd.Idade + ' anos</span>' : '')
+      +       (bd.Sexo    ? '<span class="rbadge">' + sexoExt(bd.Sexo) + '</span>' : '')
+      +       (bd.RacaCor ? '<span class="rbadge">' + bd.RacaCor + '</span>' : '')
+      +     '</div>'
+      +   '</div>'
+      + '</div>'
+
+      // ── Dados visíveis (gratuitos) ──
+      + '<div class="rcard2__free">'
+      +   '<div class="rcard2__section-label">Identificação</div>'
+      +   '<div class="rcard2__grid">'
+      +     '<div class="rcard2__field"><div class="rcard2__k">CPF</div><div class="rcard2__v rcard2__v--mono">' + fmtCpf(bd.CPF) + '</div></div>'
+      +     (nasc ? '<div class="rcard2__field"><div class="rcard2__k">Nascimento</div><div class="rcard2__v">' + nasc + '</div></div>' : '')
+      +   '</div>'
+      + '</div>'
+
+      // ── Seção bloqueada ──
+      + '<div class="rcard2__locked">'
+
+      // Preview borrado (por baixo)
+      +   '<div class="rcard2__locked-inner">'
+      +     blurField('Mãe', bd.Mae)
+      +     blurField('Pai', bd.Pai)
+      +     blurField('RG', doc.RG ? doc.RG + ' ' + (doc.RGOrgaoEmissor || '') : null)
+      +     blurField('CNS', bd.CNS)
+      +     blurField('NIS', doc.NIS)
+      +     blurField('Celular', fmtFone(cont.Celular))
+      +     blurField('Telefone', fmtFone(cont.Telefone))
+      +     blurField('E-mail', emailPrincipal)
+      +     blurField('Endereço', endEx.Rua ? endEx.Rua + ', ' + (endEx.Numero || '') + ' — ' + (endEx.Cidade || '') + '/' + (endEx.Estado || '') : null)
+      +     blurField('CEP', fmtCep(endEx.CEP))
+      +     (bd.Falecido && bd.DataFalecimento ? blurField('Falecimento', formatBirthDate(bd.DataFalecimento)) : '')
+      +   '</div>'
+
+      // Parede de bloqueio (por cima)
+      +   '<div class="rcard2__lock-wall">'
+      +     '<div class="rcard2__lock-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>'
+      +     '<div class="rcard2__lock-title">Relatório completo bloqueado</div>'
+      +     '<div class="rcard2__lock-desc">'
+      +       (bd.Mae   ? '<span class="rcard2__lock-chip">👩 Nome da mãe</span>' : '')
+      +       (bd.Pai   ? '<span class="rcard2__lock-chip">👨 Nome do pai</span>' : '')
+      +       (doc.RG   ? '<span class="rcard2__lock-chip">🪪 RG</span>' : '')
+      +       (bd.CNS   ? '<span class="rcard2__lock-chip">🏥 CNS</span>' : '')
+      +       (doc.NIS  ? '<span class="rcard2__lock-chip">💼 NIS</span>' : '')
+      +       (cont.Celular || cont.Telefone ? '<span class="rcard2__lock-chip">📞 Telefones</span>' : '')
+      +       (emailPrincipal ? '<span class="rcard2__lock-chip">✉️ E-mail</span>' : '')
+      +       (ends.length   ? '<span class="rcard2__lock-chip">📍 Endereço</span>' : '')
+      +       (bd.Falecido   ? '<span class="rcard2__lock-chip">📅 Data falecimento</span>' : '')
+      +     '</div>'
+      +   '</div>'
+
+      + '</div>'
+
+      // ── Botão de desbloqueio ──
+      + '<div class="rcard2__foot">'
+      +   '<button type="button" class="btn btn--accent btn--lg" onclick="openPricingModal(\'' + activityId + '\')">'
+      +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+      +     'Desbloquear relatório completo'
+      +   '</button>'
+      +   '<small>Acesso imediato — pagamento 100% seguro</small>'
+      + '</div>'
+
+      + '</div>';
+  }
+
+  // ---- Monta todos os cards da resposta ----
+  function insertResults(data, isDemo) {
     var results = data.Result || [];
     var html = '';
     for (var idx = 0; idx < results.length; idx++) {
-      var bd = results[idx].BasicData || {};
-      html += `
-        <div class="rcard">
-          <div class="rcard__info">
-            <div><div class="rcard__k">Nome</div><div class="rcard__v name">${bd.Name || 'Não disponível'}</div></div>
-            <div><div class="rcard__k">CPF</div><div class="rcard__v">${renderCensoredValue(bd.TaxIdNumber || 'Não disponível')}</div></div>
-            ${bd.BirthDate ? `<div><div class="rcard__k">Nascimento</div><div class="rcard__v">${renderCensoredValue(formatBirthDate(bd.BirthDate))}</div></div>` : ''}
-            ${bd.MotherName ? `<div><div class="rcard__k">Nome da Mãe</div><div class="rcard__v"><span class="blur-x">${bd.MotherName}</span></div></div>` : ''}
-          </div>
-          <div class="rcard__cta">
-            <button type="button" class="btn btn--accent" onclick="openPricingModal('${data.search_activity_id || ''}')">
-              Desbloquear relatório 🔓
-            </button>
-            <small>Inclui telefones, e-mails, endereços e vínculos (quando disponíveis).</small>
-          </div>
-        </div>`;
+      html += buildCard(results[idx], data.search_activity_id || '', isDemo || false);
     }
     return html;
   }
 
+  // ---- Dados de teste (demo visual) ----
+  var DEMO_DATA = {
+    Result: [{
+      BasicData: {
+        Nome: 'LUIS LOPES CARDOSO', CPF: '01065963149',
+        CNS: '706 5014 5244 0013', DataNascimento: '1943-12-05', Idade: 80,
+        Sexo: 'M', RacaCor: 'Branca', Falecido: true, DataFalecimento: '2018-03-14',
+        Mae: 'MARGARIDA LOPES', Pai: 'JOSE LOPES CARDOSO',
+      },
+      Documentos: { RG: '5.124.387', RGOrgaoEmissor: 'SSP/SP', RGDataEmissao: '1975-06-20', NIS: '12076543210' },
+      Contatos: { Celular: '19987654321', Telefone: '1933221100', Contato: null, Emails: ['luis.cardoso@gmail.com'] },
+      Enderecos: [{ Rua: 'R DR QUIRINO', Numero: '1250', Complemento: 'AP 32', Bairro: 'CENTRO', Cidade: 'Campinas', Estado: 'SP', CEP: '13015081' }],
+    }],
+    censored: true, search_activity_id: '',
+  };
+
   $(document).ready(function () {
+
+    // Mostra card demo ao carregar para o usuário ver o design
+    $('.search-container-section').show();
+    $('#card-body-search-results').html(insertResults(DEMO_DATA, true));
+    $('#search_title_result').text('Prévia do relatório');
+    $('#row_search_results').show();
 
     $('#contador-label').html(parseInt(getCookie('contador') || 0));
 
@@ -331,7 +466,8 @@
               $('#contador-label').html(contador);
 
               $('.search-container-section').show();
-              $("#card-body-search-results").html(insertResults(response));
+              $('#search_title_result').text('Resultados da sua busca');
+              $("#card-body-search-results").html(insertResults(response, false));
               $("#row_search_results").fadeIn();
               $('html, body').animate({ scrollTop: $("#search-container").offset().top - 90 }, 800);
             } else {
