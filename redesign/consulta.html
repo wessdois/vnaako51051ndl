@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consulta por Nome | Capivara Online</title>
+<meta name="description" content="Consulte dados de pessoas por nome completo na Capivara Online. Apoio à análise de risco e prevenção a fraudes, conforme a LGPD.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/logo-mark.png">
+<link rel="stylesheet" href="assets/style.css">
+<!-- Libs usadas pela lógica de busca/checkout -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://www.google.com/recaptcha/enterprise.js?render=6Lc7ya0qAAAAAFIT2iBWa_cGr6W0t6hGyUxJbfQ_"></script>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="nav is-scrolled" id="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="brand" aria-label="Capivara Online">
+      <img class="brand__logo" src="assets/logo-mark.png" alt="Capivara Online" width="60" height="38">
+      <span><b>capivara</b> <span class="brand__on">online</span></span>
+    </a>
+    <nav class="nav__links">
+      <a class="nav__link" href="https://painel.buscaprime.com.br/checkout/login/4Zq66xVveW5jNYrBispC3z3cAb">Já paguei</a>
+      <a class="nav__link hide-sm" href="../buscaprime.com.br/sua-privacidade.html">Privacidade</a>
+      <a class="nav__link" href="https://painel.buscaprime.com.br/">Entrar</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= SUBHERO ================= -->
+<section class="subhero">
+  <div class="wrap">
+    <div class="subhero__ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+    </div>
+    <h1>Pesquisar dados de pessoas por Nome</h1>
+    <p>Informe o nome completo para localizar registros e liberar o relatório completo.</p>
+    <div style="margin-top:18px;">
+      <span class="counter">Suas pesquisas grátis: <b id="contador-label">0</b>/3 <span id="contador-free" style="display:none"></span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CARD DE BUSCA ================= -->
+<div class="wrap">
+  <div class="searchcard">
+    <div class="searchcard__pad">
+      <nav class="tabs">
+        <a class="is-active" href="consulta.html">Nome</a>
+        <a href="../buscaprime.com.br/buscar-dados-pelo-cpf/consulta_php.html">CPF</a>
+        <a href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">E-mail</a>
+        <a href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">Telefone</a>
+      </nav>
+
+      <form id="form-search" action="https://buscaprime.com.br/api/public/dataset/people/basic/v2" method="post">
+        <label class="flabel" for="in-name">Insira o Nome Completo que você quer pesquisar</label>
+        <input id="in-name" class="finput" type="text" name="searchTerms[name]" placeholder="Ex.: João da Silva Santos" value="" autocomplete="off">
+
+        <details class="filters">
+          <summary>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3z"/></svg>
+            Filtrar sua busca
+          </summary>
+          <div class="filters__grid">
+            <div>
+              <label>UF/Estado</label>
+              <select name="searchTerms[state]">
+                <option value="">Selecione</option>
+                <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option>
+                <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
+                <option>MS</option><option>MT</option><option>MG</option><option>PA</option><option>PB</option>
+                <option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+                <option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option>
+                <option>SE</option><option>TO</option>
+              </select>
+            </div>
+            <div><label>Cidade</label><input type="text" name="searchTerms[city]"></div>
+            <div><label>Bairro</label><input type="text" name="searchTerms[neighborhood]"></div>
+            <div><label>Data de Nasc.</label><input type="date" name="searchTerms[birthdate]"></div>
+            <div style="grid-column: span 2;"><label>Nome da Mãe</label><input type="text" name="searchTerms[mothername]"></div>
+          </div>
+        </details>
+
+        <div style="margin-top:24px; text-align:center;">
+          <button type="submit" class="btn btn--accent btn--lg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            Pesquisar Nome
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ================= RESULTADOS ================= -->
+<section class="results search-container-section" style="display:none; margin-top:48px;">
+  <div id="search-container" class="wrap">
+    <div id="row_search_results" style="display:none">
+      <div class="results__head">
+        <h2 id="search_title_result">Resultados da sua busca</h2>
+        <p>Identifique a pessoa e libere o Relatório Completo (contatos, endereços, vínculos).</p>
+      </div>
+      <div id="card-body-search-results"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MODAL DE PREÇOS ================= -->
+<div id="pricingModal" class="modal">
+  <div class="modal__box">
+    <div class="modal__head">
+      <div>
+        <span class="eyebrow">Relatório completo</span>
+        <h2 style="margin-top:12px;">Escolha um plano para prosseguir</h2>
+        <p>Clique na opção desejada para ir ao pagamento seguro.</p>
+      </div>
+      <button class="modal__x" onclick="closePricingModal()" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <input type="hidden" name="search_activity_id" id="search_activity_id_pricing_modal" value="">
+    <div class="price-grid">
+      <button type="button" class="price" onclick="openCheckout('1BUSCA', $('#search_activity_id_pricing_modal').val())">
+        <span class="price__q">1 Busca</span>
+        <div class="price__v"><small>R$</small> 9,90</div>
+        <span class="price__u">por relatório</span>
+      </button>
+      <button type="button" class="price price--best" onclick="openCheckout('3BUSCAS', $('#search_activity_id_pricing_modal').val())">
+        <span class="price__flag">Popular</span>
+        <span class="price__q">3 Buscas</span>
+        <div class="price__v"><small>R$</small> 19,90</div>
+        <span class="price__u">R$ 6,63 cada</span>
+      </button>
+      <button type="button" class="price" onclick="openCheckout('5BUSCAS', $('#search_activity_id_pricing_modal').val())">
+        <span class="price__q">5 Buscas</span>
+        <div class="price__v"><small>R$</small> 29,90</div>
+        <span class="price__u">R$ 5,98 cada</span>
+      </button>
+      <button type="button" class="price" onclick="openCheckout('10BUSCAS', $('#search_activity_id_pricing_modal').val())">
+        <span class="price__q">10 Buscas</span>
+        <div class="price__v"><small>R$</small> 49,90</div>
+        <span class="price__u">R$ 4,99 cada</span>
+      </button>
+    </div>
+    <div class="modal__foot">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Pagamento processado em ambiente seguro
+    </div>
+  </div>
+</div>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__bottom" style="border-top:0; padding-top:0;">
+      <p>© 2026 Capivara Online. Todos os direitos reservados.</p>
+      <p class="footer__cnpj">CNPJ 00.000.000/0000-00</p>
+    </div>
+  </div>
+</footer>
+
+<!-- =========================================================
+     LÓGICA DE BUSCA / CHECKOUT  (portada do site original)
+     ========================================================= -->
+<script>
+  // Endpoint base da API (mesmo host do action do formulário)
+  var url = 'https://buscaprime.com.br/';
+
+  // Token de acesso — SUBSTITUA pelo token gerado no seu backend.
+  const access_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcHAuYnVzY2FwcmltZS5jb20uYnIiLCJhdWQiOiJhcHAuYnVzY2FwcmltZS5jb20uYnIiLCJpYXQiOjE3ODY0NDYwMDEsImV4cCI6MTc4NjQ1MzIwMX0.jgWSt0QCKvrBA3CoX0UN3EeTk41qSk_HI7hdyQ5J4rM';
+
+  const google_event = 'buscou_lp_nome';
+  const restriction = 1;
+
+  // Stubs para não quebrar caso os pixels não estejam carregados
+  window.gtag = window.gtag || function(){};
+  window.fbq  = window.fbq  || function(){};
+
+  // ---- Cookies (idêntico ao original) ----
+  function getCookie(nome) {
+    var nomeEQ = nome + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+      if (c.indexOf(nomeEQ) == 0) return c.substring(nomeEQ.length, c.length);
+    }
+    return null;
+  }
+  function setCookie(nome, valor) {
+    var data = new Date();
+    data.setTime(data.getTime() + (24 * 60 * 60 * 1000));
+    document.cookie = nome + "=" + valor + "; expires=" + data.toGMTString() + "; path=/";
+  }
+
+  function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  }
+
+  function validarCPF(cpf) {
+    cpf = cpf.replace(/[^\d]+/g, '');
+    if (cpf == '') return false;
+    if (cpf.length != 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    var add = 0, i, rev;
+    for (i = 0; i < 9; i++) add += parseInt(cpf.charAt(i)) * (10 - i);
+    rev = 11 - (add % 11); if (rev == 10 || rev == 11) rev = 0;
+    if (rev != parseInt(cpf.charAt(9))) return false;
+    add = 0;
+    for (i = 0; i < 10; i++) add += parseInt(cpf.charAt(i)) * (11 - i);
+    rev = 11 - (add % 11); if (rev == 10 || rev == 11) rev = 0;
+    if (rev != parseInt(cpf.charAt(10))) return false;
+    return true;
+  }
+
+  // ---- Modal de preços ----
+  function openPricingModal(search_activity_id = '') {
+    if (search_activity_id) $('#search_activity_id_pricing_modal').val(search_activity_id);
+    document.getElementById('pricingModal').classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    gtag('event', 'abriu_modal_oferta', {});
+  }
+  function closePricingModal() {
+    document.getElementById('pricingModal').classList.remove('is-open');
+    document.body.style.overflow = 'auto';
+  }
+  document.getElementById('pricingModal').addEventListener('click', function (e) {
+    if (e.target === this) closePricingModal();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePricingModal(); });
+
+  // ---- Render de valores censurados ----
+  function renderCensoredValue(value) {
+    if (!value) return '';
+    value = `${value}`;
+    return value.replace(/([X*]{2,})/g, '<span class="blur-x">$1</span>');
+  }
+  function formatBirthDate(b) {
+    if (!b) return '';
+    if (b.includes('T')) b = b.split('T')[0];
+    var p = b.split('-');
+    return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : b;
+  }
+
+  // ---- Monta os cartões de resultado (design novo) ----
+  function insertResults(data) {
+    var results = data.Result || [];
+    var html = '';
+    for (var idx = 0; idx < results.length; idx++) {
+      var bd = results[idx].BasicData || {};
+      html += `
+        <div class="rcard">
+          <div class="rcard__info">
+            <div><div class="rcard__k">Nome</div><div class="rcard__v name">${bd.Name || 'Não disponível'}</div></div>
+            <div><div class="rcard__k">CPF</div><div class="rcard__v">${renderCensoredValue(bd.TaxIdNumber || 'Não disponível')}</div></div>
+            ${bd.BirthDate ? `<div><div class="rcard__k">Nascimento</div><div class="rcard__v">${renderCensoredValue(formatBirthDate(bd.BirthDate))}</div></div>` : ''}
+            ${bd.MotherName ? `<div><div class="rcard__k">Nome da Mãe</div><div class="rcard__v"><span class="blur-x">${bd.MotherName}</span></div></div>` : ''}
+          </div>
+          <div class="rcard__cta">
+            <button type="button" class="btn btn--accent" onclick="openPricingModal('${data.search_activity_id || ''}')">
+              Desbloquear relatório 🔓
+            </button>
+            <small>Inclui telefones, e-mails, endereços e vínculos (quando disponíveis).</small>
+          </div>
+        </div>`;
+    }
+    return html;
+  }
+
+  $(document).ready(function () {
+
+    $('#contador-label').html(parseInt(getCookie('contador') || 0));
+
+    var msgNaoEncontrado = "Verifique se digitou corretamente ou tente por outra chave:"
+      + " <br><br><a href='../buscaprime.com.br/buscar-dados-pelo-cpf/consulta_php.html' style='padding:8px'>Buscar por CPF</a>"
+      + " <a href='consulta.html' style='padding:8px'>Buscar por Nome</a>";
+
+    var form = $("#form-search");
+    form.submit(function (event) {
+      event.preventDefault();
+      var post_url = $(this).attr("action");
+      var request_method = $(this).attr("method");
+      var form_data = $(this).serialize();
+      var contador = parseInt(getCookie('contador') || 0);
+
+      fbq('track', 'ViewContent');
+
+      if (contador >= 3) {
+        gtag('event', 'acabou_pesq_gratis', {});
+        Swal.fire({
+          icon: 'warning',
+          title: "Suas pesquisas gratuitas terminaram!",
+          text: "Compre a Pesquisa Completa no botão a seguir:",
+          confirmButtonText: 'Comprar Pesquisa Completa',
+        }).then(function () { openPricingModal(); });
+        return;
+      }
+
+      var doSearch = function (token) {
+        $.ajax({
+          url: url + post_url.replace(/^https?:\/\/[^\/]+\//, '').replace(/^\//, ''),
+          type: request_method,
+          data: form_data,
+          dataType: "json",
+          headers: { 'token': token || '', 'access_token': access_token },
+          beforeSend: function () {
+            $("#form-search").block({ message: "Buscando informações...", css: { border: '0' } });
+          },
+          success: function (response) {
+            $("#form-search").unblock();
+            gtag('event', google_event);
+
+            var vazio = (typeof response.Result === 'undefined' || response.Result.length == 0
+              || typeof response.Result[0].BasicData === 'undefined' || response.Result[0].BasicData.length == 0);
+
+            if (typeof response['status'] === 'undefined' && !vazio) {
+              gtag('event', 'retornou_resultado', {});
+              var contador = parseInt(getCookie('contador') || 0);
+              contador++; setCookie('contador', contador);
+              $('#contador-label').html(contador);
+
+              $('.search-container-section').show();
+              $("#card-body-search-results").html(insertResults(response));
+              $("#row_search_results").fadeIn();
+              $('html, body').animate({ scrollTop: $("#search-container").offset().top - 90 }, 800);
+            } else {
+              gtag('event', 'result_nao_encontrado', {});
+              Swal.fire({ icon: 'warning', title: "Não encontrado.", html: msgNaoEncontrado });
+            }
+          },
+          error: function () {
+            $("#form-search").unblock();
+            Swal.fire({ icon: 'warning', title: "Não encontrado.", html: msgNaoEncontrado });
+          }
+        });
+      };
+
+      // reCAPTCHA quando disponível; caso contrário segue sem token
+      if (window.grecaptcha && grecaptcha.enterprise) {
+        grecaptcha.enterprise.ready(function () {
+          grecaptcha.enterprise.execute('6Lc7ya0qAAAAAFIT2iBWa_cGr6W0t6hGyUxJbfQ_', { action: 'submit' })
+            .then(doSearch).catch(function () { doSearch(''); });
+        });
+      } else {
+        doSearch('');
+      }
+    });
+  });
+
+  // ---- Gera o link de pagamento e redireciona ----
+  function openCheckout(sku = '1BUSCA', search_activity_id = null) {
+    $("#pricingModal").block({ message: "Gerando link de pagamento...", css: { border: '0' } });
+    setTimeout(function () {
+      const formData = new FormData();
+      formData.append('sku', sku);
+      if (search_activity_id) formData.append('search_activity_id', search_activity_id);
+
+      var evMap = { '1BUSCA': 'geroupix_1', '3BUSCAS': 'geroupix_3', '5BUSCAS': 'geroupix_5', '10BUSCAS': 'geroupix_10' };
+      if (evMap[sku]) gtag('event', evMap[sku], {});
+
+      const referer_url = (sessionStorage.getItem('referrer') || document.referrer);
+      fetch(url + 'api/landingpage/lead', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'access_token': access_token,
+          'utm_source': getUrlParameter('utm_source') || '',
+          'utm_medium': getUrlParameter('utm_medium') || '',
+          'utm_campaign': getUrlParameter('utm_campaign') || '',
+          'gclid': getUrlParameter('gclid') || '',
+          'referer_url': referer_url
+        }
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.success) { window.location.href = '/checkout/' + data.hash; }
+          else { $("#pricingModal").unblock(); toastr.error(data.erro || 'Erro ao gerar pagamento'); }
+        })
+        .catch(function (e) { $("#pricingModal").unblock(); toastr.error('Erro ao enviar dados: ' + e); });
+    }, 300);
+  }
+</script>
+
+<!-- UI: nav ao rolar -->
+<script>
+  (function () {
+    var nav = document.getElementById('nav');
+    var onScroll = function () { nav.classList.toggle('is-scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+</script>
+</body>
+</html>

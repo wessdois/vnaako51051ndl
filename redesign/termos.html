@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Termos de Uso | Capivara Online</title>
+<meta name="description" content="Termos de Uso da Plataforma Capivara Online — regras e condições para utilização do serviço.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/logo-mark.png">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="nav is-scrolled" id="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="brand"><img class="brand__logo" src="assets/logo-mark.png" alt="Capivara Online" width="60" height="38"><span><b>capivara</b> <span class="brand__on">online</span></span></a>
+    <nav class="nav__links">
+      <a class="nav__link" href="privacidade.html">Privacidade</a>
+      <a class="nav__link hide-sm" href="politica.html">Política</a>
+      <a class="btn" href="consulta.html">Consultar</a>
+    </nav>
+  </div>
+</header>
+
+<section class="subhero">
+  <div class="wrap">
+    <div class="subhero__ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+    <h1>Termos de <span style="color:var(--accent)">Uso</span></h1>
+    <p>Regras e condições para a utilização da Plataforma Capivara Online.</p>
+  </div>
+</section>
+
+<section class="doc">
+  <div class="wrap doc__wrap">
+    <p class="doc__meta">Documento oficial · Capivara Online · CNPJ 00.000.000/0000-00</p>
+    <div class="pdf-actions">
+      <a class="btn" href="https://buscaprime.com.br/termos_de_uso_pdf.html" target="_blank" rel="noopener">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+        Abrir / baixar o PDF
+      </a>
+      <a class="btn btn--ghost" href="privacidade.html">Voltar ao Portal da Privacidade</a>
+    </div>
+    <object class="pdf-frame" data="https://buscaprime.com.br/termos_de_uso_pdf.html" type="application/pdf">
+      <div class="doc__card">
+        <h2>Visualização indisponível neste dispositivo</h2>
+        <p>Seu navegador não conseguiu exibir o documento incorporado. Use o botão <strong>“Abrir / baixar o PDF”</strong> acima para acessar os Termos de Uso completos.</p>
+      </div>
+    </object>
+  </div>
+</section>
+
+<footer class="footer" style="margin-top:40px;">
+  <div class="wrap">
+    <div class="footer__bottom" style="border-top:0; padding-top:0;">
+      <p>© 2026 Capivara Online. Todos os direitos reservados.</p>
+      <p class="footer__cnpj">CNPJ 00.000.000/0000-00</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var nav = document.getElementById('nav');
+    var onScroll = function () { nav.classList.toggle('is-scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+</script>
+</body>
+</html>

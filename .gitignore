@@ -1,0 +1,30 @@
+# Dependências
+node_modules/
+npm-debug.log*
+
+# Variáveis de ambiente — NUNCA commitar
+backend/.env
+.env
+*.env
+
+# Arquivos sensíveis / ilegais
+sus.php
+Sending-SUS*/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Build / temporários
+*.tmp
+*.bak
+__pycache__/
+*.pyc
+.pycache/
+
+# Site original baixado (não pertence ao projeto novo)
+buscaprime.com.br/

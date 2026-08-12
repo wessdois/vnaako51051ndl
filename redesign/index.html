@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capivara Online — Consulta de dados para análise de risco e prevenção a fraudes</title>
+<meta name="description" content="Consulte dados públicos de pessoas e empresas por nome, CPF, telefone, e-mail ou CNPJ. Apoio à análise de risco, prevenção a fraudes e compliance. Conforme a LGPD. CNPJ 00.000.000/0000-00.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/logo-mark.png">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="brand" aria-label="Capivara Online">
+      <img class="brand__logo" src="assets/logo-mark.png" alt="Capivara Online" width="60" height="38">
+      <span><b>capivara</b> <span class="brand__on">online</span></span>
+    </a>
+    <nav class="nav__links">
+      <a class="nav__link" href="https://painel.buscaprime.com.br/checkout/login/4Zq66xVveW5jNYrBispC3z3cAb">Já paguei</a>
+      <a class="nav__link hide-sm" href="../buscaprime.com.br/sua-privacidade.html">Privacidade</a>
+      <a class="nav__link" href="https://painel.buscaprime.com.br/">Entrar</a>
+      <span class="nav__sep" aria-hidden="true"></span>
+      <a class="btn" href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Testar grátis
+      </a>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap hero__inner">
+    <div class="hero__copy reveal">
+      <span class="eyebrow eyebrow--light">Plataforma de consultas de dados</span>
+      <h1 class="hero__title">
+        Dados confiáveis para<br>análise de risco e<br><span class="accent">prevenção a fraudes</span>
+      </h1>
+      <p class="hero__lead">
+        Acesse informações de fontes públicas para validar cadastros e reduzir riscos
+        nas suas operações — sempre em conformidade com a LGPD.
+      </p>
+      <div class="hero__cta">
+        <a class="btn btn--accent btn--lg" href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          Consultar grátis
+        </a>
+        <a class="btn btn--ghost btn--lg" href="#como-funciona" style="--_fg:#fff; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.2);">
+          Como funciona
+        </a>
+      </div>
+      <ul class="hero__trust">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg> Dados seguros</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg> Consulta instantânea</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg> Conforme a LGPD</li>
+      </ul>
+    </div>
+
+    <!-- Console / product shot -->
+    <div class="console reveal" aria-hidden="true">
+      <div class="console__bar">
+        <span class="console__dot r"></span><span class="console__dot y"></span><span class="console__dot g"></span>
+        <span class="console__addr">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          capivaraonline.com.br/consulta
+        </span>
+      </div>
+      <div class="console__body" id="consoleAnim">
+        <div class="console__search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <span class="console__typed"><span id="consoleTyped"></span><span class="console__caret"></span></span>
+          <span class="console__kbd">↵ Enter</span>
+        </div>
+
+        <!-- estado: buscando -->
+        <div class="console__loading" hidden>
+          <span class="spinner"></span> Consultando fontes públicas…
+        </div>
+
+        <div class="result" hidden>
+          <div class="result__row">
+            <span class="result__name">João da Silva Santos</span>
+            <span class="result__tag">● 1 resultado</span>
+          </div>
+          <div class="result__grid">
+            <div class="field"><span class="field__k">CPF</span><span class="field__v">111.222.333-96</span></div>
+            <div class="field"><span class="field__k">Nascimento</span><span class="field__v">12/03/1985</span></div>
+            <div class="field"><span class="field__k">Telefone</span><span class="field__v blur">(11) 9•••• ••••</span></div>
+            <div class="field"><span class="field__k">E-mail</span><span class="field__v blur">j••••@••••.com</span></div>
+            <div class="field"><span class="field__k">Endereço</span><span class="field__v blur">Rua ••••••, ••• — São Paulo/SP</span></div>
+            <div class="field"><span class="field__k">Nome da mãe</span><span class="field__v blur">Maria •••••• ••••</span></div>
+          </div>
+          <div class="result__foot">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+            Campos sensíveis desbloqueados no relatório completo
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prova social / números -->
+  <div class="wrap marquee reveal">
+    <p class="marquee__label">Uma base ampla de fontes públicas, organizada para decisão</p>
+    <div class="stats">
+      <div class="stat"><div class="stat__n">+180<span class="u">M</span></div><div class="stat__l">Registros indexados</div></div>
+      <div class="stat"><div class="stat__n">5<span class="u">s</span></div><div class="stat__l">Tempo médio de consulta</div></div>
+      <div class="stat"><div class="stat__n">24<span class="u">/7</span></div><div class="stat__l">Disponibilidade</div></div>
+      <div class="stat"><div class="stat__n">100<span class="u">%</span></div><div class="stat__l">Conforme a LGPD</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TIPOS DE BUSCA ================= -->
+<section class="section" id="pesquisar">
+  <div class="wrap">
+    <div class="section__head reveal">
+      <span class="eyebrow">Chaves de consulta</span>
+      <h2 class="section__title">Com a Capivara Online você pode <span class="grad-text">pesquisar por</span></h2>
+      <p class="section__lead">Cinco pontos de entrada para localizar e cruzar informações de pessoas e empresas.</p>
+    </div>
+    <div class="searchgrid reveal">
+      <a class="scard" href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">
+        <div class="scard__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>
+        <h3>Por nome</h3>
+        <p>Encontre uma pessoa a partir do nome completo, mesmo com variações.</p>
+        <span class="scard__go">Consultar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
+      </a>
+      <a class="scard" href="../buscaprime.com.br/buscar-dados-pelo-cpf/consulta_php.html">
+        <div class="scard__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4M15 9h2M15 13h2M7 9h.01"/></svg></div>
+        <h3>Por CPF</h3>
+        <p>Valide um cadastro consultando diretamente pelo número do documento.</p>
+        <span class="scard__go">Consultar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
+      </a>
+      <a class="scard" href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">
+        <div class="scard__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div>
+        <h3>Por e-mail</h3>
+        <p>Descubra o titular por trás de um endereço de e-mail.</p>
+        <span class="scard__go">Consultar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
+      </a>
+      <a class="scard" href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">
+        <div class="scard__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg></div>
+        <h3>Por telefone</h3>
+        <p>Identifique a quem pertence um número de celular ou fixo.</p>
+        <span class="scard__go">Consultar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
+      </a>
+      <a class="scard" href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">
+        <div class="scard__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg></div>
+        <h3>Empresas</h3>
+        <p>Consulte dados cadastrais e vínculos societários por CNPJ.</p>
+        <span class="scard__go">Consultar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TIPOS DE DADO (dark) ================= -->
+<section class="section datasection">
+  <div class="wrap">
+    <div class="section__head reveal">
+      <span class="eyebrow eyebrow--light">O que você recebe</span>
+      <h2 class="section__title">Quais dados estão disponíveis na consulta</h2>
+      <p class="section__lead">Um relatório consolidado, com os campos mais úteis para validar identidade e avaliar risco.</p>
+    </div>
+    <div class="datagrid reveal">
+      <div class="dchip"><span class="dchip__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><div><h4>Nome completo</h4><span>identificação</span></div></div>
+      <div class="dchip"><span class="dchip__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4M7 9h.01"/></svg></span><div><h4>CPF</h4><span>documento</span></div></div>
+      <div class="dchip"><span class="dchip__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg></span><div><h4>Data de nascimento</h4><span>perfil</span></div></div>
+      <div class="dchip"><span class="dchip__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg></span><div><h4>Telefones de contato</h4><span>contato</span></div></div>
+      <div class="dchip"><span class="dchip__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><div><h4>Endereços relacionados</h4><span>localização</span></div></div>
+      <div class="dchip"><span class="dchip__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/></svg></span><div><h4>Empresas relacionadas</h4><span>vínculos</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMO FUNCIONA + BENEFÍCIOS ================= -->
+<section class="section" id="como-funciona">
+  <div class="wrap">
+    <div class="section__head reveal">
+      <span class="eyebrow">Em três passos</span>
+      <h2 class="section__title">Da busca ao relatório, em segundos</h2>
+    </div>
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Informe a chave</h3>
+        <p>Digite o nome, CPF, e-mail ou telefone que você quer verificar.</p>
+      </div>
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Cruzamos as fontes</h3>
+        <p>Consultamos e organizamos dados de fontes públicas em tempo real.</p>
+      </div>
+      <div class="step">
+        <div class="step__n"></div>
+        <h3>Receba o relatório</h3>
+        <p>Visualize na hora e receba a versão completa no seu e-mail.</p>
+      </div>
+    </div>
+
+    <div class="benefits reveal" style="margin-top:48px;">
+      <div class="bcard">
+        <div class="bcard__ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 7.5 12 3l9 4.5M3 7.5v9L12 21l9-4.5v-9"/></svg></div>
+        <h3>Dados de fontes públicas</h3>
+        <p>Informações coletadas de bases públicas e organizadas em uma plataforma simples de usar.</p>
+      </div>
+      <div class="bcard">
+        <div class="bcard__ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div>
+        <h3>Receba na hora</h3>
+        <p>Visualize e receba a pesquisa completa no seu e-mail imediatamente após a consulta.</p>
+      </div>
+      <div class="bcard">
+        <div class="bcard__ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Segurança</h3>
+        <p>Tratamento de dados em conformidade com a LGPD e respeito aos direitos do titular.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PAGAMENTO ================= -->
+<section class="section" style="padding-top:0;">
+  <div class="wrap center" style="max-width:640px;">
+    <div class="reveal">
+      <span class="eyebrow" style="justify-content:center;">Checkout</span>
+      <h2 class="section__title">Pague com <span class="grad-text">segurança</span></h2>
+      <p class="section__lead">Aceitamos as principais formas de pagamento do mercado, com total segurança.</p>
+      <div class="pay">
+        <span class="pay__item"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 4 4-4 4-4-4 4-4Zm0 12 4 4-4 4-4-4 4-4ZM2 12l4-4 4 4-4 4-4-4Zm12 0 4-4 4 4-4 4-4-4Z"/></svg> Pix</span>
+        <span class="pay__item"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Cartão de crédito</span>
+        <span class="pay__item"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16M8 4v16M12 4v16M16 4v16M20 4v16"/></svg> Boleto</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="section" id="faq" style="background:var(--surface); border-block:1px solid var(--border);">
+  <div class="wrap">
+    <div class="section__head center reveal">
+      <span class="eyebrow" style="justify-content:center;">Dúvidas frequentes</span>
+      <h2 class="section__title">Perguntas e respostas</h2>
+    </div>
+    <div class="faq reveal">
+      <details class="qa" open>
+        <summary><span class="qa__i">01</span> Como a Capivara Online funciona?
+          <svg class="qa__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="qa__body">A Capivara Online coleta informações de fontes públicas, como redes sociais, marketplaces e outros lugares na internet. Essas informações são processadas e organizadas em uma plataforma fácil de usar, que permite pesquisar dados sobre qualquer pessoa ou empresa.</div>
+      </details>
+      <details class="qa">
+        <summary><span class="qa__i">02</span> Quais tipos de informações a Capivara Online fornece?
+          <svg class="qa__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="qa__body">Uma ampla variedade de informações sobre pessoas e empresas, incluindo nome, endereço, telefone, histórico profissional, entre outras.</div>
+      </details>
+      <details class="qa">
+        <summary><span class="qa__i">03</span> É legal usar informações da Capivara Online?
+          <svg class="qa__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="qa__body">Sim. As informações são coletadas de fontes públicas e estão disponíveis para acesso. É importante lembrar que o uso indevido de informações pessoais pode ser ilegal e infringir a privacidade das pessoas.</div>
+      </details>
+      <details class="qa">
+        <summary><span class="qa__i">04</span> A Capivara Online garante a precisão das informações?
+          <svg class="qa__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="qa__body">Nos esforçamos para fornecer informações precisas e atualizadas, mas não é possível garantir a precisão de todos os dados. As informações podem mudar ao longo do tempo — verifique sempre se estão atualizadas.</div>
+      </details>
+      <details class="qa">
+        <summary><span class="qa__i">05</span> Quem pode usar a Capivara Online?
+          <svg class="qa__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="qa__body">A Capivara Online deve ser utilizado exclusivamente para fins de avaliação e auxílio na tomada de decisões. O uso de dados pessoais fora dos parâmetros previstos nos Termos de Uso e na Política de Privacidade é estritamente proibido.</div>
+      </details>
+      <details class="qa">
+        <summary><span class="qa__i">06</span> Como funciona o tratamento de dados pessoais?
+          <svg class="qa__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="qa__body">A Capivara Online se preocupa com a proteção de dados pessoais. Sugerimos a leitura da nossa <a href="../buscaprime.com.br/politica_privacidade_pdf.html" target="_blank" rel="noopener">Política de Privacidade</a> e dos <a href="../buscaprime.com.br/termos_de_uso_pdf.html" target="_blank" rel="noopener">Termos de Uso</a>.</div>
+      </details>
+      <details class="qa">
+        <summary><span class="qa__i">07</span> Como exercer meus direitos como titular de dados?
+          <svg class="qa__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="qa__body">Recomendamos a leitura da Política de Privacidade, onde esclarecemos seus direitos. Para exercê-los, entre em contato com nosso Encarregado (DPO). Se deseja apenas bloquear pesquisas com o seu nome, <a href="../buscaprime.com.br/cpf.html">clique aqui</a>.</div>
+      </details>
+      <details class="qa">
+        <summary><span class="qa__i">08</span> Posso pedir o bloqueio de pesquisas com o meu nome?
+          <svg class="qa__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="qa__body">Sim. Basta <a href="../buscaprime.com.br/cpf.html">clicar aqui</a> e solicitar o bloqueio de todas as pesquisas compatíveis com o seu nome/CPF. Após a solicitação, o bloqueio é efetuado e deixa de ser possível apresentar resultados ligados a quem solicitou.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA FINAL ================= -->
+<section class="section">
+  <div class="wrap">
+    <div class="cta reveal">
+      <div class="cta__body">
+        <span class="eyebrow eyebrow--light">Comece agora</span>
+        <h2 class="cta__title">Encontre informações <span class="accent">valiosas</span> agora mesmo</h2>
+        <p class="cta__lead">Faça sua primeira consulta na Capivara Online e tenha acesso a dados de pessoas e empresas em segundos.</p>
+        <ul class="cta__meta">
+          <li><span class="live"></span> Acesso imediato</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg> 100% seguro</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Teste grátis</li>
+        </ul>
+      </div>
+      <div class="cta__action">
+        <a class="btn btn--accent btn--lg btn--block" href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          Fazer minha consulta
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a href="index.html" class="brand">
+          <img class="brand__logo" src="assets/logo-mark.png" alt="Capivara Online" width="60" height="38">
+          <span><b>capivara</b> <span class="brand__on">online</span></span>
+        </a>
+        <p class="footer__about">Plataforma de consulta de dados públicos para análise de risco, prevenção a fraudes e compliance.</p>
+        <div class="footer__badges">
+          <span class="fbadge"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg> LGPD</span>
+          <span class="fbadge"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> SSL</span>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h4>Consultas</h4>
+        <a href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">Por nome</a>
+        <a href="../buscaprime.com.br/buscar-dados-pelo-cpf/consulta_php.html">Por CPF</a>
+        <a href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">Por e-mail</a>
+        <a href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">Por telefone</a>
+      </div>
+      <div class="footer__col">
+        <h4>Institucional</h4>
+        <a href="../buscaprime.com.br/sua-privacidade.html">Portal da privacidade</a>
+        <a href="../buscaprime.com.br/politica_privacidade_pdf.html" target="_blank" rel="noopener">Política de privacidade</a>
+        <a href="../buscaprime.com.br/termos_de_uso_pdf.html" target="_blank" rel="noopener">Termos de uso</a>
+        <a href="../buscaprime.com.br/cpf.html">Bloquear meu nome</a>
+      </div>
+      <div class="footer__col">
+        <h4>Conta</h4>
+        <a href="https://painel.buscaprime.com.br/">Entrar</a>
+        <a href="https://painel.buscaprime.com.br/checkout/login/4Zq66xVveW5jNYrBispC3z3cAb">Já paguei</a>
+        <a href="#faq">Ajuda / FAQ</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p>© 2026 Capivara Online. Todos os direitos reservados.</p>
+      <p class="footer__cnpj">CNPJ 00.000.000/0000-00</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ UI only: nav scroll + reveal ============ -->
+<script>
+  (function () {
+    var nav = document.getElementById('nav');
+    var onScroll = function () { nav.classList.toggle('is-scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    els.forEach(function (e) { io.observe(e); });
+  })();
+</script>
+
+<!-- ============ Console animado (hero) ============ -->
+<script>
+  (function () {
+    var box = document.getElementById('consoleAnim');
+    if (!box) return;
+    var typed   = box.querySelector('#consoleTyped');
+    var caret   = box.querySelector('.console__caret');
+    var loading = box.querySelector('.console__loading');
+    var result  = box.querySelector('.result');
+    var tag     = result.querySelector('.result__tag');
+    var fields  = result.querySelectorAll('.field');
+    var NAME = 'João da Silva Santos';
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var timers = [];
+    function wait(fn, ms) { timers.push(setTimeout(fn, ms)); }
+    function clearAll() { timers.forEach(clearTimeout); timers = []; }
+
+    // Estado final estático quando o usuário prefere menos movimento
+    if (reduce) {
+      typed.textContent = NAME; caret.style.display = 'none';
+      result.hidden = false; fields.forEach(function (f) { f.classList.add('in'); });
+      return;
+    }
+
+    function reset() {
+      clearAll();
+      typed.textContent = '';
+      caret.style.display = 'inline-block';
+      loading.hidden = true;
+      result.hidden = true;
+      result.classList.remove('is-in');
+      tag.classList.remove('pop');
+      fields.forEach(function (f) { f.classList.remove('in'); });
+    }
+    function type(i) {
+      if (i <= NAME.length) {
+        typed.textContent = NAME.slice(0, i);
+        wait(function () { type(i + 1); }, 55 + Math.random() * 45);
+      } else {
+        caret.style.display = 'none';
+        wait(loadStep, 650);
+      }
+    }
+    function loadStep() {
+      loading.hidden = false;
+      wait(function () {
+        loading.hidden = true;
+        result.hidden = false;
+        // força reflow para reiniciar a animação de entrada
+        void result.offsetWidth;
+        result.classList.add('is-in');
+        tag.classList.add('pop');
+        fields.forEach(function (f, idx) {
+          wait(function () { f.classList.add('in'); }, 260 + idx * 130);
+        });
+        wait(loop, 5600);
+      }, 1250);
+    }
+    function loop() { reset(); wait(function () { type(0); }, 550); }
+
+    // começa quando o console entra em tela
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (en) {
+        if (en[0].isIntersecting) { io.disconnect(); reset(); type(0); }
+      }, { threshold: 0.4 });
+      io.observe(box);
+    } else { reset(); type(0); }
+  })();
+</script>
+</body>
+</html>

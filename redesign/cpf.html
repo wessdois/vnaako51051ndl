@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bloqueio de CPF ou CNPJ | Capivara Online</title>
+<meta name="description" content="Bloqueie seu CPF ou CNPJ na Capivara Online para proteger seus dados pessoais. Solicitação segura e gratuita, conforme a LGPD.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/logo-mark.png">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="nav is-scrolled" id="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="brand"><img class="brand__logo" src="assets/logo-mark.png" alt="Capivara Online" width="60" height="38"><span><b>capivara</b> <span class="brand__on">online</span></span></a>
+    <nav class="nav__links">
+      <a class="nav__link hide-sm" href="privacidade.html">Privacidade</a>
+      <a class="nav__link" href="https://painel.buscaprime.com.br/">Entrar</a>
+      <a class="btn" href="consulta.html">Consultar</a>
+    </nav>
+  </div>
+</header>
+
+<section class="subhero">
+  <div class="wrap">
+    <div class="subhero__ico" style="background:linear-gradient(135deg,#ef4444,#b91c1c); box-shadow:0 0 0 1px rgba(239,68,68,.4),0 12px 40px -8px rgba(239,68,68,.4);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m4.9 4.9 14.2 14.2"/></svg>
+    </div>
+    <h1>Bloqueio de <span style="color:var(--accent)">CPF</span> ou <span style="color:var(--accent)">CNPJ</span></h1>
+    <p>Proteja seus dados solicitando o bloqueio do seu CPF ou CNPJ. O bloqueio é <strong style="color:#fff">gratuito, seguro e irreversível</strong>, impedindo consultas futuras.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="searchcard" style="max-width:600px;">
+    <div class="searchcard__pad">
+      <div style="text-align:center; margin-bottom:24px;">
+        <h2 style="font-size:22px;">Solicitar bloqueio</h2>
+        <p style="color:var(--text-soft); font-size:14.5px; margin-top:6px;">Preencha os dados abaixo para bloquear seu CPF ou CNPJ.</p>
+      </div>
+
+      <form action="https://buscaprime.com.br/api/blacklist/addExternal" method="post" id="form-cpf">
+        <div style="margin-bottom:18px;">
+          <label class="flabel" for="email" style="text-align:left;">Seu melhor e-mail</label>
+          <input class="finput" style="text-align:left;" type="email" id="email" name="email" placeholder="nome@exemplo.com" required>
+        </div>
+        <div style="margin-bottom:18px;">
+          <label class="flabel" for="cpf" style="text-align:left;">CPF ou CNPJ</label>
+          <input class="finput" style="text-align:left;" type="text" id="cpf" name="cpf" placeholder="123.456.789-00 ou 12.345.678/0001-90" required>
+        </div>
+
+        <label for="declaracao" style="display:flex; gap:12px; align-items:flex-start; padding:16px; background:#fffbeb; border:1px solid #fde68a; border-radius:var(--r-md); font-size:13.5px; color:#92400e; cursor:pointer;">
+          <input type="checkbox" id="declaracao" name="declaracao" value="1" required style="margin-top:3px; flex:none; width:16px; height:16px;">
+          <span><strong>Declaração:</strong> declaro que sou o titular do CPF ou CNPJ informado e desejo o bloqueio. Estou ciente de que esta ação é <strong>irreversível</strong>.</span>
+        </label>
+
+        <div style="display:flex; gap:12px; align-items:flex-start; padding:16px; margin-top:16px; background:#fef2f2; border:1px solid #fecaca; border-radius:var(--r-md); font-size:13.5px; color:#991b1b;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none; margin-top:1px;"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4m0 4h.01"/></svg>
+          <div><strong>Atenção — ação irreversível.</strong> Uma vez bloqueado, não será possível realizar consultas deste CPF/CNPJ. Esta ação não pode ser desfeita.</div>
+        </div>
+
+        <button type="submit" class="btn btn--lg btn--block" style="--_bg:linear-gradient(135deg,#ef4444,#b91c1c); margin-top:22px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m4.9 4.9 14.2 14.2"/></svg>
+          Solicitar bloqueio
+        </button>
+
+        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; margin-top:22px; padding-top:20px; border-top:1px solid var(--border); font-size:13px; color:var(--text-soft);">
+          <span style="display:inline-flex; align-items:center; gap:7px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-700)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Processamento em até 24h</span>
+          <span style="display:inline-flex; align-items:center; gap:7px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-700)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg> 100% seguro e gratuito</span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<footer class="footer" style="margin-top:56px;">
+  <div class="wrap">
+    <div class="footer__bottom" style="border-top:0; padding-top:0;">
+      <p>© 2026 Capivara Online. Todos os direitos reservados.</p>
+      <p class="footer__cnpj">CNPJ 00.000.000/0000-00</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var nav = document.getElementById('nav');
+    var onScroll = function () { nav.classList.toggle('is-scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+</script>
+</body>
+</html>
