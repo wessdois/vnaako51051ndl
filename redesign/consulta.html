@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/logo-mark.png">
 <link rel="stylesheet" href="assets/style.css">
+<script src="assets/config.js"></script>
 <!-- Libs usadas pela lógica de busca/checkout -->
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.min.js"></script>
@@ -18,6 +19,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
 <script src="https://www.google.com/recaptcha/enterprise.js?render=6Lc7ya0qAAAAAFIT2iBWa_cGr6W0t6hGyUxJbfQ_"></script>
+<script src="assets/config.js"></script>
 </head>
 <body>
 
@@ -56,9 +58,9 @@
     <div class="searchcard__pad">
       <nav class="tabs">
         <a class="is-active" href="consulta.html">Nome</a>
-        <a href="../buscaprime.com.br/buscar-dados-pelo-cpf/consulta_php.html">CPF</a>
-        <a href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">E-mail</a>
-        <a href="../buscaprime.com.br/buscar-dados-pelo-nome/consulta_php.html">Telefone</a>
+        <a href="consulta.html">CPF</a>
+        <a href="consulta.html">E-mail</a>
+        <a href="consulta.html">Telefone</a>
       </nav>
 
       <form id="form-search" action="https://buscaprime.com.br/api/public/dataset/people/basic/v2" method="post">
@@ -172,11 +174,11 @@
      LÓGICA DE BUSCA / CHECKOUT  (portada do site original)
      ========================================================= -->
 <script>
-  // Endpoint base da API (mesmo host do action do formulário)
-  var url = 'https://buscaprime.com.br/';
+  // Endpoint base da API — configurado em assets/config.js
+  var url = (window.APP_CONFIG && window.APP_CONFIG.API_BASE ? window.APP_CONFIG.API_BASE : '') + '/';
 
-  // Token de acesso — SUBSTITUA pelo token gerado no seu backend.
-  const access_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcHAuYnVzY2FwcmltZS5jb20uYnIiLCJhdWQiOiJhcHAuYnVzY2FwcmltZS5jb20uYnIiLCJpYXQiOjE3ODY0NDYwMDEsImV4cCI6MTc4NjQ1MzIwMX0.jgWSt0QCKvrBA3CoX0UN3EeTk41qSk_HI7hdyQ5J4rM';
+  // Token de acesso — preenchido automaticamente pelo config.js
+  const access_token = (window.APP_CONFIG && window.APP_CONFIG.ACCESS_TOKEN) || '';
 
   const google_event = 'buscou_lp_nome';
   const restriction = 1;
@@ -283,8 +285,7 @@
     $('#contador-label').html(parseInt(getCookie('contador') || 0));
 
     var msgNaoEncontrado = "Verifique se digitou corretamente ou tente por outra chave:"
-      + " <br><br><a href='../buscaprime.com.br/buscar-dados-pelo-cpf/consulta_php.html' style='padding:8px'>Buscar por CPF</a>"
-      + " <a href='consulta.html' style='padding:8px'>Buscar por Nome</a>";
+      + " <br><br><a href='consulta.html' style='padding:8px'>Buscar por Nome</a>";
 
     var form = $("#form-search");
     form.submit(function (event) {
@@ -370,7 +371,7 @@
       if (evMap[sku]) gtag('event', evMap[sku], {});
 
       const referer_url = (sessionStorage.getItem('referrer') || document.referrer);
-      fetch(url + 'api/landingpage/lead', {
+      fetch((window.APP_CONFIG && window.APP_CONFIG.API_BASE ? window.APP_CONFIG.API_BASE : '') + '/api/landingpage/lead', {
         method: 'POST',
         body: formData,
         headers: {
