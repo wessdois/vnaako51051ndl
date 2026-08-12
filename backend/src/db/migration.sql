@@ -1,3 +1,20 @@
+-- =============================================================
+-- Extensões necessárias
+-- =============================================================
+CREATE EXTENSION IF NOT EXISTS unaccent;   -- remove acentos
+CREATE EXTENSION IF NOT EXISTS pg_trgm;    -- busca por similaridade (trigram)
+
+-- Função de normalização: minúsculo + sem acento + sem espaço duplo
+-- Usada nos índices e nas queries de busca por nome
+CREATE OR REPLACE FUNCTION normaliza_nome(texto text)
+RETURNS text LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE AS $$
+  SELECT regexp_replace(
+    lower(unaccent(texto)),
+    '\s+', ' ', 'g'
+  )
+$$;
+
+-- =============================================================
 -- Tabela principal de pessoas
 CREATE TABLE IF NOT EXISTS pessoas (
   id SERIAL PRIMARY KEY,
@@ -78,12 +95,29 @@ CREATE TABLE IF NOT EXISTS leads (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Índices para buscas rápidas
-CREATE INDEX IF NOT EXISTS idx_pessoas_nome ON pessoas USING gin(to_tsvector('portuguese', nome));
+-- =============================================================
+-- Índices — permitem buscar sem varrer a tabela inteira
+-- =============================================================
+
+-- Busca por nome: FTS (full-text) sobre nome normalizado
+-- Usado pelo plainto_tsquery na query de busca por nome
+CREATE INDEX IF NOT EXISTS idx_pessoas_fts
+  ON pessoas USING gin(to_tsvector('simple', normaliza_nome(nome)));
+
+-- Busca por similaridade (similarity > 0.35) — trigram GIN
+-- Sem este índice o PostgreSQL varre TODOS os registros a cada busca por nome
+CREATE INDEX IF NOT EXISTS idx_pessoas_trgm
+  ON pessoas USING gin(normaliza_nome(nome) gin_trgm_ops);
+
+-- Busca exata por documento
 CREATE INDEX IF NOT EXISTS idx_pessoas_cpf ON pessoas(cpf);
 CREATE INDEX IF NOT EXISTS idx_pessoas_cns ON pessoas(cns);
-CREATE INDEX IF NOT EXISTS idx_pessoas_rg ON pessoas(rg);
+CREATE INDEX IF NOT EXISTS idx_pessoas_rg  ON pessoas(rg);
 CREATE INDEX IF NOT EXISTS idx_pessoas_nis ON pessoas(nis);
+
+-- Busca por telefone e e-mail
 CREATE INDEX IF NOT EXISTS idx_telefones_numero ON telefones(numero);
-CREATE INDEX IF NOT EXISTS idx_emails_email ON emails(email);
+CREATE INDEX IF NOT EXISTS idx_emails_email      ON emails(email);
+
+-- Leads
 CREATE INDEX IF NOT EXISTS idx_leads_hash ON leads(hash);
