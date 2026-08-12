@@ -41,12 +41,12 @@
 <section class="subhero">
   <div class="wrap">
     <div class="subhero__ico">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+      <svg id="subhero-ico" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
     </div>
-    <h1>Pesquisar dados de pessoas por Nome</h1>
-    <p>Informe o nome completo para localizar registros e liberar o relatório completo.</p>
+    <h1 id="subhero-title">Pesquisar por Nome</h1>
+    <p id="subhero-sub">Informe o nome completo para localizar registros e liberar o relatório completo.</p>
     <div style="margin-top:18px;">
-      <span class="counter">Suas pesquisas grátis: <b id="contador-label">0</b>/3 <span id="contador-free" style="display:none"></span></span>
+      <span class="counter">Suas pesquisas grátis: <b id="contador-label">0</b>/3</span>
     </div>
   </div>
 </section>
@@ -56,17 +56,17 @@
   <div class="searchcard">
     <div class="searchcard__pad">
       <nav class="tabs">
-        <a class="is-active" href="consulta.html">Nome</a>
-        <a href="consulta.html">CPF</a>
-        <a href="consulta.html">E-mail</a>
-        <a href="consulta.html">Telefone</a>
+        <button type="button" class="tabs__btn is-active" data-tab="name">Nome</button>
+        <button type="button" class="tabs__btn" data-tab="doc">CPF</button>
+        <button type="button" class="tabs__btn" data-tab="email">E-mail</button>
+        <button type="button" class="tabs__btn" data-tab="phone">Telefone</button>
       </nav>
 
-      <form id="form-search" action="https://buscaprime.com.br/api/public/dataset/people/basic/v2" method="post">
-        <label class="flabel" for="in-name">Insira o Nome Completo que você quer pesquisar</label>
-        <input id="in-name" class="finput" type="text" name="searchTerms[name]" placeholder="Ex.: João da Silva Santos" value="" autocomplete="off">
+      <form id="form-search" method="post">
+        <label class="flabel" id="search-label" for="in-search">Insira o Nome Completo que você quer pesquisar</label>
+        <input id="in-search" class="finput" type="text" name="name" placeholder="Ex.: João da Silva Santos" value="" autocomplete="off" inputmode="text">
 
-        <details class="filters">
+        <details class="filters" id="filters-section">
           <summary>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3z"/></svg>
             Filtrar sua busca
@@ -74,7 +74,7 @@
           <div class="filters__grid">
             <div>
               <label>UF/Estado</label>
-              <select name="searchTerms[state]">
+              <select name="state">
                 <option value="">Selecione</option>
                 <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option>
                 <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
@@ -84,17 +84,17 @@
                 <option>SE</option><option>TO</option>
               </select>
             </div>
-            <div><label>Cidade</label><input type="text" name="searchTerms[city]"></div>
-            <div><label>Bairro</label><input type="text" name="searchTerms[neighborhood]"></div>
-            <div><label>Data de Nasc.</label><input type="date" name="searchTerms[birthdate]"></div>
-            <div style="grid-column: span 2;"><label>Nome da Mãe</label><input type="text" name="searchTerms[mothername]"></div>
+            <div><label>Cidade</label><input type="text" name="city"></div>
+            <div><label>Bairro</label><input type="text" name="neighborhood"></div>
+            <div><label>Data de Nasc.</label><input type="date" name="birthdate"></div>
+            <div style="grid-column: span 2;"><label>Nome da Mãe</label><input type="text" name="mothername"></div>
           </div>
         </details>
 
         <div style="margin-top:24px; text-align:center;">
-          <button type="submit" class="btn btn--accent btn--lg">
+          <button type="submit" id="btn-search" class="btn btn--accent btn--lg">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-            Pesquisar Nome
+            <span id="btn-search-label">Pesquisar Nome</span>
           </button>
         </div>
       </form>
@@ -173,13 +173,77 @@
      LÓGICA DE BUSCA / CHECKOUT  (portada do site original)
      ========================================================= -->
 <script>
+  // ── Configuração dos tabs de busca ──
+  var TAB_CFG = {
+    name:  { title: 'Pesquisar por Nome',     sub: 'Informe o nome completo para localizar registros.', label: 'Insira o Nome Completo que você quer pesquisar', ph: 'Ex.: João da Silva Santos',  type: 'text',  mode: 'text',    btn: 'Pesquisar Nome',     filters: true  },
+    doc:   { title: 'Pesquisar por CPF',      sub: 'Busca exata pelo número do CPF da pessoa.',          label: 'Insira o CPF que você quer pesquisar',          ph: '000.000.000-00',              type: 'text',  mode: 'numeric', btn: 'Pesquisar CPF',      filters: false },
+    email: { title: 'Pesquisar por E-mail',   sub: 'Descubra o titular de um endereço de e-mail.',       label: 'Insira o E-mail que você quer pesquisar',       ph: 'Ex.: joao@email.com',         type: 'email', mode: 'email',   btn: 'Pesquisar E-mail',   filters: false },
+    phone: { title: 'Pesquisar por Telefone', sub: 'Identifique o dono de um número de celular ou fixo.',label: 'Insira o Telefone que você quer pesquisar',     ph: '(11) 99999-9999',             type: 'tel',   mode: 'tel',     btn: 'Pesquisar Telefone', filters: false },
+  };
+  var activeTab = 'name';
+
+  function maskCpf(e) {
+    var v = e.target.value.replace(/\D/g, '').slice(0, 11);
+    if (v.length > 9) v = v.slice(0,3)+'.'+v.slice(3,6)+'.'+v.slice(6,9)+'-'+v.slice(9);
+    else if (v.length > 6) v = v.slice(0,3)+'.'+v.slice(3,6)+'.'+v.slice(6);
+    else if (v.length > 3) v = v.slice(0,3)+'.'+v.slice(3);
+    e.target.value = v;
+  }
+  function maskPhone(e) {
+    var v = e.target.value.replace(/\D/g, '').slice(0, 11);
+    if (v.length === 11) v = '('+v.slice(0,2)+') '+v.slice(2,7)+'-'+v.slice(7);
+    else if (v.length === 10) v = '('+v.slice(0,2)+') '+v.slice(2,6)+'-'+v.slice(6);
+    e.target.value = v;
+  }
+
+  function switchTab(tab) {
+    if (!TAB_CFG[tab]) return;
+    activeTab = tab;
+    var cfg = TAB_CFG[tab];
+    var inp = document.getElementById('in-search');
+
+    // Botões
+    document.querySelectorAll('.tabs__btn').forEach(function(b) {
+      b.classList.toggle('is-active', b.dataset.tab === tab);
+    });
+
+    // Subhero
+    document.getElementById('subhero-title').textContent = cfg.title;
+    document.getElementById('subhero-sub').textContent = cfg.sub;
+
+    // Formulário
+    document.getElementById('search-label').textContent = cfg.label;
+    inp.name = tab;
+    inp.type = cfg.type;
+    inp.placeholder = cfg.ph;
+    inp.inputMode = cfg.mode;
+    inp.value = '';
+    document.getElementById('btn-search-label').textContent = cfg.btn;
+
+    // Filtros (só nome)
+    document.getElementById('filters-section').style.display = cfg.filters ? '' : 'none';
+
+    // Máscaras
+    inp.removeEventListener('input', maskCpf);
+    inp.removeEventListener('input', maskPhone);
+    if (tab === 'doc')   inp.addEventListener('input', maskCpf);
+    if (tab === 'phone') inp.addEventListener('input', maskPhone);
+
+    inp.focus();
+  }
+
+  // Inicializa listeners dos tabs
+  document.querySelectorAll('.tabs__btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { switchTab(this.dataset.tab); });
+  });
+
   // Endpoint base da API — configurado em assets/config.js
   var url = (window.APP_CONFIG && window.APP_CONFIG.API_BASE ? window.APP_CONFIG.API_BASE : '') + '/';
 
   // Token de acesso — preenchido automaticamente pelo config.js
   const access_token = (window.APP_CONFIG && window.APP_CONFIG.ACCESS_TOKEN) || '';
 
-  const google_event = 'buscou_lp_nome';
+  var google_event = 'buscou_lp_nome';
   const restriction = 1;
 
   // Stubs para não quebrar caso os pixels não estejam carregados
@@ -473,17 +537,17 @@
 
     $('#contador-label').html(parseInt(getCookie('contador') || 0));
 
-    var msgNaoEncontrado = "Verifique se digitou corretamente ou tente por outra chave:"
-      + " <br><br><a href='consulta.html' style='padding:8px'>Buscar por Nome</a>";
+    var msgNaoEncontrado = "Verifique se digitou corretamente ou tente outra chave de busca.";
 
     var form = $("#form-search");
     form.submit(function (event) {
       event.preventDefault();
-      var post_url = $(this).attr("action");
-      var request_method = $(this).attr("method");
+      var post_url = 'api/public/dataset/people/basic/v2';
+      var request_method = 'POST';
       var form_data = $(this).serialize();
       var contador = parseInt(getCookie('contador') || 0);
 
+      google_event = 'buscou_lp_' + activeTab;
       fbq('track', 'ViewContent');
 
       if (contador >= 3) {
