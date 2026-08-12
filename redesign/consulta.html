@@ -924,7 +924,15 @@
 
 <!-- Auth / Supabase -->
 <script>
-  var Auth = window.CapivaraAuth;
+  // Se o Supabase não carregar, a busca anônima continua funcionando
+  var Auth = window.CapivaraAuth || {
+    session: null, credits: 0, client: null,
+    onChange: function (cb) { cb(null); },
+    requireLogin: function () { location.href = 'login.html'; return false; },
+    refreshCredits: function () { return Promise.resolve(0); },
+    setCredits: function () {},
+    logout: function () { location.reload(); },
+  };
   var sbClient = Auth.client;
   var currentSession = null;
   var currentCredits = 0;
