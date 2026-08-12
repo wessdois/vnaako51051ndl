@@ -905,7 +905,11 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
   .rpt__hd { padding: 22px 20px 18px; }
   .rpt__hd-row { gap: 14px; }
   .rpt__avatar { width: 52px; height: 52px; font-size: 18px; border-radius: 14px; }
-  .rpt__name { font-size: 16px; }
+  /* o nome é o dado principal — deixa quebrar em vez de cortar com "..." */
+  .rpt__name {
+    font-size: 16px; white-space: normal; overflow: visible;
+    text-overflow: clip; word-break: break-word; line-height: 1.2;
+  }
   .rpt__found-n { font-size: 28px; }
   .rpt__body { padding: 20px 16px; }
   .rpt__fields { gap: 22px; }
