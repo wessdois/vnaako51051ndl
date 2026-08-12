@@ -6,7 +6,7 @@ window.APP_CONFIG = {
   // Quando o VPS estiver pronto, troque pelo IP ou domínio:
   // Exemplo: 'https://api.capivaraonline.com.br'
   //          'http://65.21.xxx.xxx:3000'  (IP do Hetzner enquanto sem domínio)
-  API_BASE: '',
+  API_BASE: 'https://api.capivaraonline.digital',
 
   // Token de acesso — deixe vazio, o backend vai gerar automaticamente
   ACCESS_TOKEN: '',
