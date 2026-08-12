@@ -175,7 +175,6 @@
   <div class="wrap">
     <div class="footer__bottom" style="border-top:0; padding-top:0;">
       <p>© 2026 Capivara Online. Todos os direitos reservados.</p>
-      <p class="footer__cnpj">CNPJ 00.000.000/0000-00</p>
     </div>
   </div>
 </footer>
@@ -716,8 +715,8 @@
       h += '<div class="rpt__cta">'
         + '<button type="button" class="rpt__cta-btn" onclick="openPricingModal(\'' + activityId + '\')">'
         + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
-        + 'Desbloquear relatório completo</button>'
-        + '<span class="rpt__cta-note">A partir de R$ 9,90 · Acesso imediato · Pagamento seguro</span>'
+        + 'Ver ' + locked.length + ' dados bloqueados — a partir de R$ 4,99</button>'
+        + '<span class="rpt__cta-note">Acesso imediato · Sem assinatura · Não encontrou? O crédito volta</span>'
         + '</div>';
     } else {
       h += buildDossie(r);
