@@ -10,6 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/logo-mark.png">
 <link rel="stylesheet" href="assets/style.css?v=2">
+<script src="assets/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/auth.js"></script>
 </head>
 <body>
 
@@ -18,7 +21,7 @@
     <a href="index.html" class="brand"><img class="brand__logo" src="assets/logo-mark.png" alt="Capivara Online" width="60" height="38"><span><b>capivara</b> <span class="brand__on">online</span></span></a>
     <nav class="nav__links">
       <a class="nav__link hide-sm" href="privacidade.html">Privacidade</a>
-      <a class="nav__link" href="https://painel.buscaprime.com.br/">Entrar</a>
+      <div class="navauth" data-navauth></div>
       <a class="btn" href="consulta.html">Consultar</a>
     </nav>
   </div>

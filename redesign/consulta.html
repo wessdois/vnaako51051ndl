@@ -19,6 +19,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="assets/auth.js"></script>
 </head>
 <body>
 
@@ -31,12 +32,7 @@
     </a>
     <nav class="nav__links">
       <a class="nav__link hide-sm" href="privacidade.html">Privacidade</a>
-      <a class="nav__link" href="login.html" id="nav-login">Entrar</a>
-      <div id="nav-user" style="display:none; align-items:center; gap:10px;">
-        <span id="nav-credits" style="font-size:13px; font-weight:700; color:var(--accent);"></span>
-        <button class="nav__link" style="font-size:14px; background:none; border:0; cursor:pointer;" onclick="abrirHistorico()">Histórico</button>
-        <button class="nav__link" style="font-size:14px; background:none; border:0; cursor:pointer;" onclick="fazerLogout()">Sair</button>
-      </div>
+      <div class="navauth" data-navauth></div>
     </nav>
   </div>
 </header>
@@ -301,6 +297,10 @@
 
   // ---- Modal de preços ----
   function openPricingModal(search_activity_id = '') {
+    // Compra de créditos exige conta — os créditos ficam vinculados ao usuário
+    if (window.CapivaraAuth && !CapivaraAuth.requireLogin('Crie sua conta para comprar créditos e guardar seu histórico de consultas.')) {
+      return;
+    }
     if (search_activity_id) $('#search_activity_id_pricing_modal').val(search_activity_id);
     document.getElementById('pricingModal').classList.add('is-open');
     document.body.style.overflow = 'hidden';
@@ -856,9 +856,15 @@
             cnt++; setCookie('contador', cnt);
             $('#contador-label').html(cnt);
           } else {
-            // Atualiza créditos exibidos
+            // Desconta na hora e sincroniza com o servidor logo em seguida
             currentCredits = Math.max(0, currentCredits - 1);
             atualizarCreditsUI();
+            Auth.setCredits(currentCredits);
+            setTimeout(function () {
+              Auth.refreshCredits().then(function (n) {
+                currentCredits = n; atualizarCreditsUI();
+              });
+            }, 1500);
           }
 
           var uncensored = (response.censored === false);
@@ -879,6 +885,11 @@
 
   // ---- Gera o link de pagamento e redireciona ----
   function openCheckout(sku = '1BUSCA', search_activity_id = null) {
+    if (window.CapivaraAuth && !CapivaraAuth.session) {
+      closePricingModal();
+      CapivaraAuth.requireLogin('Entre na sua conta para finalizar a compra.');
+      return;
+    }
     $("#pricingModal").block({ message: "Gerando link de pagamento...", css: { border: '0' } });
     setTimeout(function () {
       const formData = new FormData();
@@ -913,55 +924,30 @@
 
 <!-- Auth / Supabase -->
 <script>
-  var sbClient = window.supabase.createClient(
-    window.APP_CONFIG.SUPABASE_URL,
-    window.APP_CONFIG.SUPABASE_ANON_KEY
-  );
+  var Auth = window.CapivaraAuth;
+  var sbClient = Auth.client;
   var currentSession = null;
   var currentCredits = 0;
   var historicoData  = [];
 
   function atualizarCreditsUI() {
     document.getElementById('credits-label').textContent = currentCredits;
-    document.getElementById('nav-credits').textContent =
-      currentCredits + ' crédito' + (currentCredits !== 1 ? 's' : '');
   }
 
-  async function carregarCredits() {
-    var r = await sbClient.from('user_credits').select('credits_remaining').single();
-    currentCredits = r.data ? r.data.credits_remaining : 0;
-    atualizarCreditsUI();
-  }
-
-  function ativarModoLogado() {
-    document.getElementById('nav-login').style.display  = 'none';
-    document.getElementById('nav-user').style.display   = 'flex';
-    document.getElementById('counter-free').style.display = 'none';
-    document.getElementById('counter-paid').style.display = '';
-    carregarCredits();
-  }
-
-  function ativarModoAnonimo() {
-    document.getElementById('nav-login').style.display  = '';
-    document.getElementById('nav-user').style.display   = 'none';
-    document.getElementById('counter-free').style.display = '';
-    document.getElementById('counter-paid').style.display = 'none';
-  }
-
-  sbClient.auth.onAuthStateChange(function(event, session) {
-    currentSession = session;
-    if (session) { ativarModoLogado(); } else { ativarModoAnonimo(); }
+  // O auth.js cuida do nav; aqui só sincronizamos o contador do topo
+  Auth.onChange(function (session) {
+    currentSession = session || null;
+    document.getElementById('counter-free').style.display = session ? 'none' : '';
+    document.getElementById('counter-paid').style.display = session ? '' : 'none';
+    if (session) {
+      Auth.refreshCredits().then(function (n) {
+        currentCredits = n;
+        atualizarCreditsUI();
+      });
+    }
   });
 
-  // Verifica sessão existente ao carregar
-  sbClient.auth.getSession().then(function(r) {
-    currentSession = r.data.session;
-    if (currentSession) { ativarModoLogado(); } else { ativarModoAnonimo(); }
-  });
-
-  function fazerLogout() {
-    sbClient.auth.signOut().then(function() { location.reload(); });
-  }
+  function fazerLogout() { Auth.logout(); }
 
   async function abrirHistorico() {
     document.getElementById('historicoModal').classList.add('is-open');

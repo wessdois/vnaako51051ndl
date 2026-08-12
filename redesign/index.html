@@ -10,6 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/logo-mark.png">
 <link rel="stylesheet" href="assets/style.css?v=2">
+<script src="assets/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
 
@@ -22,7 +24,7 @@
     </a>
     <nav class="nav__links">
       <a class="nav__link hide-sm" href="privacidade.html">Privacidade</a>
-      <a class="nav__link" href="#">Entrar</a>
+      <div class="navauth" data-navauth></div>
       <span class="nav__sep" aria-hidden="true"></span>
       <a class="btn" href="consulta.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -441,6 +443,7 @@
     } else { reset(); type(0); }
   })();
 </script>
+<script src="assets/auth.js"></script>
 </body>
 </html>
 
