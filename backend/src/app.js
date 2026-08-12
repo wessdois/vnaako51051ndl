@@ -10,6 +10,7 @@ const checkoutRoutes   = require('./routes/checkout');
 
 const app = express();
 
+app.set('trust proxy', 1); // Caddy atua como reverse proxy e passa X-Forwarded-For
 app.use(cors({ origin: process.env.BASE_URL || '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
