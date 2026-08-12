@@ -3,9 +3,18 @@ CREATE TABLE IF NOT EXISTS pessoas (
   id SERIAL PRIMARY KEY,
   nome VARCHAR(255) NOT NULL,
   cpf VARCHAR(14) UNIQUE,
+  cns VARCHAR(20),
   nome_mae VARCHAR(255),
+  nome_pai VARCHAR(255),
   data_nascimento DATE,
   sexo CHAR(1),
+  raca_cor VARCHAR(30),
+  falecido BOOLEAN DEFAULT FALSE,
+  data_falecimento DATE,
+  rg VARCHAR(20),
+  rg_orgao_emissor VARCHAR(20),
+  rg_data_emissao DATE,
+  nis VARCHAR(20),
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -30,6 +39,7 @@ CREATE TABLE IF NOT EXISTS enderecos (
   pessoa_id INT REFERENCES pessoas(id) ON DELETE CASCADE,
   logradouro VARCHAR(255),
   numero VARCHAR(20),
+  complemento VARCHAR(100),
   bairro VARCHAR(100),
   cidade VARCHAR(100),
   estado CHAR(2),
@@ -71,6 +81,9 @@ CREATE TABLE IF NOT EXISTS leads (
 -- Índices para buscas rápidas
 CREATE INDEX IF NOT EXISTS idx_pessoas_nome ON pessoas USING gin(to_tsvector('portuguese', nome));
 CREATE INDEX IF NOT EXISTS idx_pessoas_cpf ON pessoas(cpf);
+CREATE INDEX IF NOT EXISTS idx_pessoas_cns ON pessoas(cns);
+CREATE INDEX IF NOT EXISTS idx_pessoas_rg ON pessoas(rg);
+CREATE INDEX IF NOT EXISTS idx_pessoas_nis ON pessoas(nis);
 CREATE INDEX IF NOT EXISTS idx_telefones_numero ON telefones(numero);
 CREATE INDEX IF NOT EXISTS idx_emails_email ON emails(email);
 CREATE INDEX IF NOT EXISTS idx_leads_hash ON leads(hash);

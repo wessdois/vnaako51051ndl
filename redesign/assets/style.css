@@ -621,7 +621,7 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
    ============================================================= */
 @media (max-width: 940px) {
   .hero__inner { grid-template-columns: 1fr; }
-  .console { max-width: 520px; }
+  .console { max-width: 540px; margin-inline: auto; }
   .stats { grid-template-columns: repeat(2, 1fr); gap: 26px; }
   .cta { grid-template-columns: 1fr; }
   .footer__top { grid-template-columns: 1fr 1fr; gap: 32px; }
@@ -633,4 +633,65 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
   .result__grid { grid-template-columns: 1fr; }
   .footer__top { grid-template-columns: 1fr; }
   .footer__bottom { justify-content: flex-start; }
+}
+
+/* Mobile fino (≤ 480px) */
+@media (max-width: 480px) {
+  /* Nav: esconde links de texto e compacta o botão CTA */
+  .nav__link { display: none !important; }
+  .nav__sep { display: none; }
+  .nav__inner .btn { padding: 10px 14px; font-size: 14px; gap: 6px; }
+  .nav__inner .btn svg { width: 16px; height: 16px; }
+
+  /* Hero */
+  .hero__cta { flex-direction: column; }
+  .hero__cta .btn { width: 100%; justify-content: center; }
+  .hero__trust { gap: 12px; }
+  .hero__lead { font-size: 15px; }
+  .console__body { padding: 14px; }
+  .console__addr { overflow: hidden; max-width: 180px; white-space: nowrap; text-overflow: ellipsis; }
+
+  /* Seções */
+  .section__head { margin-bottom: 32px; }
+  .section__lead { font-size: 15px; }
+
+  /* CTA final */
+  .cta { padding: 32px 24px; }
+  .cta__action { width: 100%; }
+  .cta__action .btn { width: 100%; justify-content: center; }
+
+  /* Tabs de busca */
+  .tabs a { font-size: 12px; padding: 9px 5px; }
+
+  /* Filtros: 1 coluna */
+  .filters__grid { grid-template-columns: 1fr; }
+
+  /* Cards de resultado */
+  .rcard { padding: 16px; gap: 14px; }
+  .rcard__info { min-width: 0; }
+  .rcard__cta { width: 100%; }
+  .rcard__cta .btn { width: 100%; justify-content: center; }
+  .rcard__cta small { max-width: 100%; }
+
+  /* Modal como bottom sheet */
+  .modal { padding: 0; align-items: flex-end; }
+  .modal__box { border-radius: var(--r-xl) var(--r-xl) 0 0; max-height: 90vh; width: 100%; max-width: 100%; }
+  .modal__head { padding: 20px 18px 0; }
+  .price-grid { padding: 14px 18px 6px; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .price { padding: 16px 10px; }
+  .price__v { font-size: 22px; }
+  .modal__foot { padding: 12px 18px 24px; font-size: 12px; }
+
+  /* Footer */
+  .footer { padding-block: 44px 28px; }
+  .footer__top { gap: 24px; }
+  .footer__col h4 { margin-bottom: 10px; }
+  .footer__col a { padding: 4px 0; }
+
+  /* FAQ */
+  .qa summary { padding: 16px; font-size: 15px; }
+  .qa__body { padding: 0 16px 18px 46px; font-size: 14px; }
+
+  /* Páginas de documento */
+  .doc__card { padding: 22px 18px; }
 }
