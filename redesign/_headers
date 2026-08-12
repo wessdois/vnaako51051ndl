@@ -1,0 +1,15 @@
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/consulta
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/assets/style.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/assets/config.js
+  Cache-Control: no-cache, no-store, must-revalidate
