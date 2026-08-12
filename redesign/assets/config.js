@@ -1,13 +1,6 @@
-// ============================================================
-// CONFIGURAÇÃO CENTRAL — altere aqui quando o servidor estiver no ar
-// ============================================================
 window.APP_CONFIG = {
-  // URL base do backend no Hetzner (sem barra no final)
-  // Quando o VPS estiver pronto, troque pelo IP ou domínio:
-  // Exemplo: 'https://api.capivaraonline.com.br'
-  //          'http://65.21.xxx.xxx:3000'  (IP do Hetzner enquanto sem domínio)
-  API_BASE: 'https://api.capivaraonline.digital',
-
-  // Token de acesso — deixe vazio, o backend vai gerar automaticamente
-  ACCESS_TOKEN: '',
+  API_BASE:           'https://api.capivaraonline.digital',
+  ACCESS_TOKEN:       '',
+  SUPABASE_URL:       'https://cubolpsqxoogupxruxiy.supabase.co',
+  SUPABASE_ANON_KEY:  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1Ym9scHNxeG9vZ3VweHJ1eGl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0Mjk1MTYsImV4cCI6MjEwMjAwNTUxNn0.RcaBYmTCrLqJUdSbnq28BGDDCE0rdmLBFFcqazY-W3o',
 };
