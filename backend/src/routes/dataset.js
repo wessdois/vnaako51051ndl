@@ -34,7 +34,21 @@ router.post('/people/basic/v2', autenticar, validarRecaptcha, async (req, res) =
       return res.status(400).json({ status: 'error', message: 'Informe ao menos um parâmetro de busca' });
     }
 
+    // Fallback: se DB interno vazio, tenta API externa (CPF / email / telefone / rg)
     if (rows.length === 0) {
+      const rawExt = await search.buscarViaApiExterna(tipoBusca, termoBusca);
+      const resultadoExt = search.mapearRespostaExterna(rawExt);
+
+      if (resultadoExt.length > 0) {
+        const activityId = await search.registrarAtividade(termoBusca, tipoBusca, ip);
+        return res.json({
+          Result: resultadoExt,
+          censored: true,
+          search_activity_id: activityId,
+          fonte: 'externa',
+        });
+      }
+
       return res.json({ status: 'not_found' });
     }
 

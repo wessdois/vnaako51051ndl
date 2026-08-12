@@ -1,4 +1,118 @@
 const pool = require('../db/connection');
+const axios = require('axios');
+
+// ── API externa de fallback ──────────────────────────────────────────────────
+
+const API_EXT_BASE = 'http://apisbrasilpro.site/consulta_serasa.php';
+
+// Mapa: tipo interno → param aceito pela API externa
+const EXT_PARAM = { cpf: 'cpf', email: 'email', telefone: 'telefone', rg: 'rg' };
+
+async function buscarViaApiExterna(tipo, valor) {
+  const param = EXT_PARAM[tipo];
+  if (!param) return null; // nome não tem suporte na API externa
+
+  const limpo = (tipo === 'cpf' || tipo === 'telefone' || tipo === 'rg')
+    ? valor.replace(/\D/g, '')
+    : valor.trim();
+
+  try {
+    const resp = await axios.get(API_EXT_BASE, {
+      params: { [param]: limpo },
+      timeout: 12000,
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+    });
+    console.log('[API-EXT] raw:', JSON.stringify(resp.data).slice(0, 400));
+    return resp.data;
+  } catch (err) {
+    console.error('[API-EXT] erro:', err.message);
+    return null;
+  }
+}
+
+function _g(obj, ...keys) {
+  for (const k of keys) {
+    for (const v of [k, k.toUpperCase(), k.toLowerCase()]) {
+      const val = obj[v];
+      if (val !== undefined && val !== null && String(val).trim()) return String(val).trim();
+    }
+  }
+  return null;
+}
+
+function _parseData(s) {
+  if (!s) return null;
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) { const [d,m,y]=s.split('/'); return `${y}-${m}-${d}`; }
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+  return null;
+}
+
+function mapearRespostaExterna(raw) {
+  if (!raw) return [];
+  const items = Array.isArray(raw) ? raw : [raw];
+
+  return items
+    .filter(item => item && typeof item === 'object')
+    .map(item => {
+      const g = (...keys) => _g(item, ...keys);
+
+      const cpf   = g('cpf','nr_cpf','num_cpf','documento');
+      const nasc  = _parseData(g('data_nascimento','datanascimento','dt_nasc','nascimento','dt_nascimento'));
+      const cel   = g('celular','telefone_celular','fone_celular','nr_celular');
+      const tel   = g('telefone','fone','telefone_fixo','fone_fixo','nr_telefone');
+      const rua   = g('logradouro','rua','endereco','ds_logradouro');
+      const cidade= g('cidade','municipio','nm_municipio','nm_cidade');
+
+      let idade = null;
+      if (nasc) {
+        const hoje = new Date(), n = new Date(nasc);
+        idade = hoje.getFullYear() - n.getFullYear();
+        const dm = hoje.getMonth() - n.getMonth();
+        if (dm < 0 || (dm === 0 && hoje.getDate() < n.getDate())) idade--;
+      }
+
+      const enderecos = (rua || cidade) ? [{
+        Rua: rua,
+        Numero: g('numero','nr_endereco'),
+        Complemento: g('complemento','ds_complemento'),
+        Bairro: g('bairro','ds_bairro'),
+        Cidade: cidade,
+        Estado: g('uf','estado','sg_uf'),
+        CEP: g('cep','nr_cep'),
+      }] : [];
+
+      const email = g('email','ds_email','mail');
+
+      return {
+        BasicData: {
+          Nome: g('nome','name','nm_pessoa','nm_completo','nm_beneficiario'),
+          CPF:  cpf ? cpf.replace(/\D/g,'') : null,
+          CNS:  g('cns','cartao_sus'),
+          DataNascimento: nasc,
+          Idade: idade,
+          Sexo: g('sexo','genero'),
+          RacaCor: g('raca','raca_cor','cor'),
+          Falecido: false, DataFalecimento: null,
+          Mae: g('mae','nome_mae','nm_mae','nomemae'),
+          Pai: g('pai','nome_pai','nm_pai'),
+        },
+        Documentos: {
+          RG: g('rg','nr_rg','identidade'),
+          RGOrgaoEmissor: g('rg_orgao','orgao_emissor'),
+          RGDataEmissao: null,
+          NIS: g('nis','pis','pasep','nr_nis'),
+        },
+        Contatos: {
+          Celular:  cel   ? cel.replace(/\D/g,'') : null,
+          Telefone: tel   ? tel.replace(/\D/g,'') : null,
+          Contato: null,
+          Emails: email ? [email] : [],
+        },
+        Enderecos: enderecos,
+      };
+    })
+    .filter(r => r.BasicData.Nome || r.BasicData.CPF);
+}
 
 async function registrarAtividade(termoBusca, tipoBusca, ip) {
   const result = await pool.query(
@@ -179,4 +293,6 @@ module.exports = {
   buscarPorEmail,
   buscarPorTelefone,
   formatarResultado,
+  buscarViaApiExterna,
+  mapearRespostaExterna,
 };
