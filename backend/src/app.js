@@ -7,6 +7,7 @@ const authRoutes       = require('./routes/auth');
 const datasetRoutes    = require('./routes/dataset');
 const landingpageRoutes = require('./routes/landingpage');
 const checkoutRoutes   = require('./routes/checkout');
+const pagamentoRoutes  = require('./routes/pagamento');
 
 const app = express();
 
@@ -21,7 +22,10 @@ const limiter = rateLimit({
   max: 100,
   message: { status: 'error', message: 'Muitas requisições. Tente novamente em breve.' },
 });
-app.use(limiter);
+// O webhook da MisticPay não passa pelo rate limit: perder uma confirmação de
+// pagamento por excesso de requisições sairia caro.
+app.use((req, res, next) =>
+  req.path.startsWith('/api/pagamento/webhook') ? next() : limiter(req, res, next));
 
 // Rate limit mais restrito nas buscas: 10 por minuto por IP
 const searchLimiter = rateLimit({
@@ -34,6 +38,7 @@ const searchLimiter = rateLimit({
 app.use('/api/auth', authRoutes);
 app.use('/api/public/dataset', searchLimiter, datasetRoutes);
 app.use('/api/landingpage', landingpageRoutes);
+app.use('/api/pagamento', pagamentoRoutes);
 app.use('/checkout', checkoutRoutes);
 app.use('/api/checkout', checkoutRoutes);
 

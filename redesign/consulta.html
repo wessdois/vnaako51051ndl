@@ -135,6 +135,60 @@
   </div>
 </div>
 
+<!-- ================= MODAL DE PAGAMENTO PIX ================= -->
+<div id="pixModal" class="modal">
+  <div class="modal__box modal__box--sm">
+    <div class="modal__head">
+      <div>
+        <span class="eyebrow">Pagamento via PIX</span>
+        <h2 style="margin-top:12px;" id="pixTitle">Confirme seus dados</h2>
+        <p id="pixSub">Precisamos do nome e CPF do pagador para gerar a cobrança.</p>
+      </div>
+      <button class="modal__x" onclick="fecharPix()" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Etapa 1: dados do pagador -->
+    <div id="pixStepForm">
+      <div class="pix__resumo">
+        <span id="pixResumoQtd">1 consulta</span>
+        <strong id="pixResumoValor">R$ 9,90</strong>
+      </div>
+      <label class="pix__label" for="pixNome">Nome completo</label>
+      <input class="pix__input" id="pixNome" type="text" autocomplete="name" placeholder="Como está no seu documento">
+      <label class="pix__label" for="pixCpf">CPF</label>
+      <input class="pix__input" id="pixCpf" type="tel" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" maxlength="14">
+      <p class="pix__erro" id="pixErro" hidden></p>
+      <button type="button" class="btn btn--accent pix__go" id="pixGerar" onclick="gerarPix()">Gerar código PIX</button>
+      <p class="pix__nota">Seus créditos entram na conta assim que o pagamento cair.</p>
+    </div>
+
+    <!-- Etapa 2: QR code + copia e cola -->
+    <div id="pixStepQr" hidden>
+      <div class="pix__qrwrap">
+        <img id="pixQr" class="pix__qr" alt="QR Code do PIX">
+      </div>
+      <div class="pix__valor">Valor: <strong id="pixValorQr">R$ 9,90</strong></div>
+      <label class="pix__label" for="pixCopia">PIX copia e cola</label>
+      <div class="pix__copyrow">
+        <input class="pix__input pix__input--mono" id="pixCopia" readonly>
+        <button type="button" class="btn btn--accent pix__copybtn" id="pixCopyBtn" onclick="copiarPix()">Copiar</button>
+      </div>
+      <div class="pix__status" id="pixStatus">
+        <span class="pix__spin" aria-hidden="true"></span>
+        <span id="pixStatusTxt">Aguardando o pagamento…</span>
+      </div>
+      <p class="pix__nota">Pode deixar esta janela aberta — a tela atualiza sozinha quando o PIX for confirmado.</p>
+    </div>
+
+    <div class="modal__foot">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Pagamento processado em ambiente seguro
+    </div>
+  </div>
+</div>
+
 <!-- ================= MODAL HISTÓRICO ================= -->
 <div id="historicoModal" class="modal">
   <div class="modal__box" style="max-width:680px; max-height:85vh; overflow-y:auto;">
@@ -312,7 +366,11 @@
   document.getElementById('pricingModal').addEventListener('click', function (e) {
     if (e.target === this) closePricingModal();
   });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePricingModal(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    closePricingModal();
+    if (typeof fecharPix === 'function') fecharPix();
+  });
 
   function formatBirthDate(b) {
     if (!b) return '';
@@ -882,43 +940,180 @@
     });
   });
 
-  // ---- Gera o link de pagamento e redireciona ----
-  function openCheckout(sku = '1BUSCA', search_activity_id = null) {
-    if (window.CapivaraAuth && !CapivaraAuth.session) {
+  // ================= PAGAMENTO PIX =================
+  var PLANOS_UI = {
+    '1BUSCA':   { creditos: 1,  valor: 9.90,  rotulo: '1 consulta' },
+    '3BUSCAS':  { creditos: 3,  valor: 19.90, rotulo: '3 consultas' },
+    '5BUSCAS':  { creditos: 5,  valor: 29.90, rotulo: '5 consultas' },
+    '10BUSCAS': { creditos: 10, valor: 49.90, rotulo: '10 consultas' },
+  };
+  var pixSku = null, pixPoll = null, pixDeadline = 0;
+
+  function brl(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
+  function apiBase() { return (window.APP_CONFIG && window.APP_CONFIG.API_BASE) || ''; }
+
+  function openCheckout(sku) {
+    sku = sku || '1BUSCA';
+    if (!PLANOS_UI[sku]) return;
+    if (!currentSession) {
       closePricingModal();
-      CapivaraAuth.requireLogin('Entre na sua conta para finalizar a compra.');
+      Auth.requireLogin('Entre na sua conta para finalizar a compra.');
       return;
     }
-    $("#pricingModal").block({ message: "Gerando link de pagamento...", css: { border: '0' } });
-    setTimeout(function () {
-      const formData = new FormData();
-      formData.append('sku', sku);
-      if (search_activity_id) formData.append('search_activity_id', search_activity_id);
 
-      var evMap = { '1BUSCA': 'geroupix_1', '3BUSCAS': 'geroupix_3', '5BUSCAS': 'geroupix_5', '10BUSCAS': 'geroupix_10' };
-      if (evMap[sku]) gtag('event', evMap[sku], {});
+    var evMap = { '1BUSCA': 'geroupix_1', '3BUSCAS': 'geroupix_3', '5BUSCAS': 'geroupix_5', '10BUSCAS': 'geroupix_10' };
+    if (window.gtag && evMap[sku]) gtag('event', evMap[sku], {});
 
-      const referer_url = (sessionStorage.getItem('referrer') || document.referrer);
-      fetch((window.APP_CONFIG && window.APP_CONFIG.API_BASE ? window.APP_CONFIG.API_BASE : '') + '/api/landingpage/lead', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'access_token': access_token,
-          'utm_source': getUrlParameter('utm_source') || '',
-          'utm_medium': getUrlParameter('utm_medium') || '',
-          'utm_campaign': getUrlParameter('utm_campaign') || '',
-          'gclid': getUrlParameter('gclid') || '',
-          'referer_url': referer_url
-        }
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data.success) { window.location.href = '/checkout/' + data.hash; }
-          else { $("#pricingModal").unblock(); toastr.error(data.erro || 'Erro ao gerar pagamento'); }
-        })
-        .catch(function (e) { $("#pricingModal").unblock(); toastr.error('Erro ao enviar dados: ' + e); });
-    }, 300);
+    pixSku = sku;
+    var p = PLANOS_UI[sku];
+    document.getElementById('pixResumoQtd').textContent = p.rotulo;
+    document.getElementById('pixResumoValor').textContent = brl(p.valor);
+    document.getElementById('pixValorQr').textContent = brl(p.valor);
+
+    // O nome do Google já vem na sessão; poupa digitação.
+    var meta = (currentSession.user && currentSession.user.user_metadata) || {};
+    if (!document.getElementById('pixNome').value) {
+      document.getElementById('pixNome').value = meta.full_name || meta.name || '';
+    }
+
+    mostrarErroPix('');
+    document.getElementById('pixStepForm').hidden = false;
+    document.getElementById('pixStepQr').hidden = true;
+    document.getElementById('pixTitle').textContent = 'Confirme seus dados';
+    document.getElementById('pixSub').textContent = 'Precisamos do nome e CPF do pagador para gerar a cobrança.';
+
+    closePricingModal();
+    document.getElementById('pixModal').classList.add('is-open');
+    document.body.style.overflow = 'hidden';
   }
+
+  function fecharPix() {
+    document.getElementById('pixModal').classList.remove('is-open');
+    document.body.style.overflow = '';
+    pararPoll();
+  }
+
+  function pararPoll() {
+    if (pixPoll) { clearInterval(pixPoll); pixPoll = null; }
+  }
+
+  function mostrarErroPix(msg) {
+    var el = document.getElementById('pixErro');
+    el.textContent = msg || '';
+    el.hidden = !msg;
+  }
+
+  // Máscara de CPF
+  document.getElementById('pixCpf').addEventListener('input', function () {
+    var v = this.value.replace(/\D/g, '').slice(0, 11);
+    this.value = v
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+      .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+  });
+
+  function gerarPix() {
+    var nome = document.getElementById('pixNome').value.trim();
+    var cpf = document.getElementById('pixCpf').value.replace(/\D/g, '');
+
+    if (nome.length < 5 || nome.indexOf(' ') === -1) return mostrarErroPix('Informe seu nome completo.');
+    if (!validarCPF(cpf)) return mostrarErroPix('CPF inválido. Confira os números.');
+    mostrarErroPix('');
+
+    var btn = document.getElementById('pixGerar');
+    btn.disabled = true;
+    btn.textContent = 'Gerando…';
+
+    fetch(apiBase() + '/api/pagamento/pix', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + currentSession.access_token,
+      },
+      body: JSON.stringify({ sku: pixSku, nome: nome, cpf: cpf }),
+    })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+      .then(function (res) {
+        btn.disabled = false;
+        btn.textContent = 'Gerar código PIX';
+        if (!res.ok || res.body.status !== 'ok') {
+          return mostrarErroPix(res.body.message || 'Não foi possível gerar o PIX. Tente novamente.');
+        }
+        exibirQr(res.body);
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = 'Gerar código PIX';
+        mostrarErroPix('Falha de conexão. Verifique sua internet e tente de novo.');
+      });
+  }
+
+  function exibirQr(dados) {
+    document.getElementById('pixQr').src = dados.qrBase64;
+    document.getElementById('pixCopia').value = dados.copyPaste;
+    document.getElementById('pixValorQr').textContent = brl(dados.valor);
+    document.getElementById('pixStepForm').hidden = true;
+    document.getElementById('pixStepQr').hidden = false;
+    document.getElementById('pixTitle').textContent = 'Escaneie ou copie o código';
+    document.getElementById('pixSub').textContent = 'Abra o app do seu banco e pague com PIX.';
+
+    // O provedor não tem endpoint de consulta: quem confirma é o webhook.
+    // Aqui só perguntamos ao nosso backend se a compra já foi creditada.
+    pixDeadline = Date.now() + 15 * 60 * 1000;
+    pararPoll();
+    pixPoll = setInterval(function () { checarPagamento(dados.purchaseId, dados.creditos); }, 4000);
+  }
+
+  function checarPagamento(purchaseId, creditos) {
+    if (Date.now() > pixDeadline) {
+      pararPoll();
+      document.getElementById('pixStatus').classList.add('pix__status--off');
+      document.getElementById('pixStatusTxt').textContent =
+        'O código expirou. Feche e gere um novo se ainda quiser comprar.';
+      return;
+    }
+
+    fetch(apiBase() + '/api/pagamento/status/' + purchaseId, {
+      headers: { 'Authorization': 'Bearer ' + currentSession.access_token },
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j.status !== 'paid') return;
+        pararPoll();
+        if (typeof j.saldo === 'number') {
+          currentCredits = j.saldo;
+          Auth.setCredits(j.saldo);
+          atualizarCreditsUI();
+        }
+        fecharPix();
+        Swal.fire({
+          icon: 'success',
+          title: 'Pagamento confirmado!',
+          text: creditos + (creditos === 1 ? ' consulta foi adicionada' : ' consultas foram adicionadas') + ' à sua conta.',
+          confirmButtonText: 'Buscar agora',
+        });
+      })
+      .catch(function () { /* rede instável: a próxima rodada tenta de novo */ });
+  }
+
+  function copiarPix() {
+    var campo = document.getElementById('pixCopia');
+    var btn = document.getElementById('pixCopyBtn');
+    var feito = function () {
+      btn.textContent = 'Copiado!';
+      setTimeout(function () { btn.textContent = 'Copiar'; }, 2000);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(campo.value).then(feito, function () { campo.select(); });
+    } else {
+      campo.select(); campo.setSelectionRange(0, 99999);
+      try { document.execCommand('copy'); feito(); } catch (e) { /* usuário copia na mão */ }
+    }
+  }
+
+  document.getElementById('pixModal').addEventListener('click', function (e) {
+    if (e.target === this) fecharPix();
+  });
 </script>
 
 <!-- Auth / Supabase -->
@@ -952,7 +1147,24 @@
         atualizarCreditsUI();
       });
     }
+    abrirPlanoDaUrl(session);
   });
+
+  // Quem clicou num plano na home cai aqui já com o checkout aberto.
+  var planoUrlTratado = false;
+  function abrirPlanoDaUrl(session) {
+    if (planoUrlTratado) return;
+    var sku = getUrlParameter('plano');
+    if (!sku || !PLANOS_UI[sku]) return;
+    planoUrlTratado = true;
+    if (!session) {
+      // Mantém ?plano= na URL: o login volta para cá e o checkout abre sozinho.
+      Auth.requireLogin('Entre na sua conta para comprar créditos.');
+      return;
+    }
+    history.replaceState(null, '', location.pathname);
+    openCheckout(sku);
+  }
 
   function fazerLogout() { Auth.logout(); }
 

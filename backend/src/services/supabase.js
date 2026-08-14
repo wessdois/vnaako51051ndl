@@ -50,4 +50,62 @@ async function saveHistory(userId, searchType, searchValue, resultJson) {
   }
 }
 
-module.exports = { getCredits, deductCredit, saveHistory };
+async function createPurchase({ userId, sku, credits, amount, payerName, payerDocument }) {
+  const { data } = await axios.post(
+    `${BASE()}/purchases`,
+    {
+      user_id: userId,
+      sku,
+      credits,
+      amount,
+      payer_name: payerName,
+      payer_document: payerDocument,
+    },
+    { headers: adminHeaders({ Prefer: 'return=representation' }) },
+  );
+  return data[0];
+}
+
+async function updatePurchase(id, campos) {
+  try {
+    await axios.patch(`${BASE()}/purchases`, campos, {
+      headers: adminHeaders({ Prefer: 'return=minimal' }),
+      params: { id: `eq.${id}` },
+    });
+  } catch (err) {
+    console.error('[supabase] updatePurchase:', err.message);
+  }
+}
+
+async function getPurchase(id) {
+  try {
+    const { data } = await axios.get(`${BASE()}/purchases`, {
+      headers: adminHeaders(),
+      params: { id: `eq.${id}`, select: '*' },
+    });
+    return data[0] || null;
+  } catch (err) {
+    console.error('[supabase] getPurchase:', err.message);
+    return null;
+  }
+}
+
+// Credita a compra de forma atômica. Saldo final, ou -1 (não existe) / -2 (já creditada).
+async function creditPurchase(id) {
+  const { data } = await axios.post(
+    `${BASE()}/rpc/credit_purchase`,
+    { p_purchase_id: id },
+    { headers: adminHeaders() },
+  );
+  return data;
+}
+
+module.exports = {
+  getCredits,
+  deductCredit,
+  saveHistory,
+  createPurchase,
+  updatePurchase,
+  getPurchase,
+  creditPurchase,
+};
