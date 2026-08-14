@@ -26,6 +26,24 @@ router.get('/planos', (_req, res) => {
   });
 });
 
+// GET /api/pagamento/pagador  →  dados salvos da última compra confirmada
+router.get('/pagador', extractUser, async (req, res) => {
+  if (!req.user) return res.status(401).json({ status: 'error' });
+
+  const pagador = await db.getUltimoPagador(req.user.id);
+  if (!pagador) return res.json({ status: 'ok', pagador: null });
+
+  return res.json({
+    status: 'ok',
+    pagador: {
+      nome: pagador.payer_name,
+      cpf: pagador.payer_document,
+      // Só o final vai para a tela; o resto o usuário já sabe que é dele.
+      cpfMascarado: '•••.•••.' + String(pagador.payer_document).slice(6, 9) + '-' + String(pagador.payer_document).slice(9),
+    },
+  });
+});
+
 // POST /api/pagamento/pix  →  cria a cobrança e devolve QR + copia-e-cola
 router.post('/pix', extractUser, async (req, res) => {
   if (!req.user) {

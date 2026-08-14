@@ -155,10 +155,20 @@
         <span id="pixResumoQtd">1 consulta</span>
         <strong id="pixResumoValor">R$ 9,90</strong>
       </div>
-      <label class="pix__label" for="pixNome">Nome completo</label>
-      <input class="pix__input" id="pixNome" type="text" autocomplete="name" placeholder="Como está no seu documento">
-      <label class="pix__label" for="pixCpf">CPF</label>
-      <input class="pix__input" id="pixCpf" type="tel" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" maxlength="14">
+      <div class="pix__salvo" id="pixSalvo" hidden>
+        <div class="pix__salvo-info">
+          <span class="pix__salvo-lab">Pagando como</span>
+          <strong id="pixSalvoNome"></strong>
+          <span class="pix__salvo-cpf" id="pixSalvoCpf"></span>
+        </div>
+        <button type="button" class="pix__trocar" onclick="trocarPagador()">Trocar</button>
+      </div>
+      <div id="pixCampos">
+        <label class="pix__label" for="pixNome">Nome completo</label>
+        <input class="pix__input" id="pixNome" type="text" autocomplete="name" placeholder="Como está no seu documento">
+        <label class="pix__label" for="pixCpf">CPF</label>
+        <input class="pix__input" id="pixCpf" type="tel" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" maxlength="14">
+      </div>
       <p class="pix__erro" id="pixErro" hidden></p>
       <button type="button" class="btn btn--accent pix__go" id="pixGerar" onclick="gerarPix()">Gerar código PIX</button>
       <p class="pix__nota">Seus créditos entram na conta assim que o pagamento cair.</p>
@@ -948,6 +958,7 @@
     '10BUSCAS': { creditos: 10, valor: 49.90, rotulo: '10 consultas' },
   };
   var pixSku = null, pixPoll = null, pixDeadline = 0;
+  var pixPagadorSalvo = null; // nome + CPF da última compra confirmada
 
   function brl(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
   function apiBase() { return (window.APP_CONFIG && window.APP_CONFIG.API_BASE) || ''; }
@@ -975,6 +986,7 @@
     if (!document.getElementById('pixNome').value) {
       document.getElementById('pixNome').value = meta.full_name || meta.name || '';
     }
+    aplicarPagadorSalvo();
 
     mostrarErroPix('');
     document.getElementById('pixStepForm').hidden = false;
@@ -985,6 +997,40 @@
     closePricingModal();
     document.getElementById('pixModal').classList.add('is-open');
     document.body.style.overflow = 'hidden';
+  }
+
+  // Busca uma vez por sessão o pagador da última compra confirmada.
+  function carregarPagadorSalvo() {
+    if (!currentSession || pixPagadorSalvo) return;
+    fetch(apiBase() + '/api/pagamento/pagador', {
+      headers: { 'Authorization': 'Bearer ' + currentSession.access_token },
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.pagador) { pixPagadorSalvo = j.pagador; aplicarPagadorSalvo(); }
+      })
+      .catch(function () { /* sem dados salvos o usuário só digita de novo */ });
+  }
+
+  // Com CPF salvo, o checkout vira um clique só.
+  function aplicarPagadorSalvo() {
+    var temSalvo = !!pixPagadorSalvo;
+    document.getElementById('pixSalvo').hidden = !temSalvo;
+    document.getElementById('pixCampos').hidden = temSalvo;
+    if (!temSalvo) return;
+    document.getElementById('pixSalvoNome').textContent = pixPagadorSalvo.nome;
+    document.getElementById('pixSalvoCpf').textContent = pixPagadorSalvo.cpfMascarado;
+    document.getElementById('pixNome').value = pixPagadorSalvo.nome;
+    document.getElementById('pixCpf').value = pixPagadorSalvo.cpf;
+  }
+
+  function trocarPagador() {
+    pixPagadorSalvo = null;
+    document.getElementById('pixNome').value = '';
+    document.getElementById('pixCpf').value = '';
+    aplicarPagadorSalvo();
+    mostrarErroPix('');
+    document.getElementById('pixNome').focus();
   }
 
   function fecharPix() {
@@ -1086,6 +1132,7 @@
           atualizarCreditsUI();
         }
         fecharPix();
+        carregarPagadorSalvo(); // a partir daqui a próxima compra já vem preenchida
         Swal.fire({
           icon: 'success',
           title: 'Pagamento confirmado!',
@@ -1146,6 +1193,9 @@
         currentCredits = n;
         atualizarCreditsUI();
       });
+      carregarPagadorSalvo();
+    } else {
+      pixPagadorSalvo = null;
     }
     abrirPlanoDaUrl(session);
   });

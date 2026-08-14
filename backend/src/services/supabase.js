@@ -90,6 +90,28 @@ async function getPurchase(id) {
   }
 }
 
+// Dados do pagador da última compra confirmada — usados para preencher o
+// checkout nas próximas vezes. Só compras pagas contam: assim um CPF digitado
+// errado numa tentativa abandonada não volta para assombrar o usuário.
+async function getUltimoPagador(userId) {
+  try {
+    const { data } = await axios.get(`${BASE()}/purchases`, {
+      headers: adminHeaders(),
+      params: {
+        user_id: `eq.${userId}`,
+        status: 'eq.paid',
+        select: 'payer_name,payer_document',
+        order: 'paid_at.desc',
+        limit: 1,
+      },
+    });
+    return data[0] || null;
+  } catch (err) {
+    console.error('[supabase] getUltimoPagador:', err.message);
+    return null;
+  }
+}
+
 // Credita a compra de forma atômica. Saldo final, ou -1 (não existe) / -2 (já creditada).
 async function creditPurchase(id) {
   const { data } = await axios.post(
@@ -107,5 +129,6 @@ module.exports = {
   createPurchase,
   updatePurchase,
   getPurchase,
+  getUltimoPagador,
   creditPurchase,
 };

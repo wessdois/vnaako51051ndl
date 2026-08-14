@@ -1249,6 +1249,13 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
 .modal__box--sm { max-width: 480px; }
 .pix__resumo { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 28px 20px; padding: 14px 18px; border-radius: var(--r-lg); background: var(--slate-050); border: 1px solid var(--border); font-size: 14.5px; color: var(--slate-700); }
 .pix__resumo strong { font-size: 20px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.pix__salvo { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 28px 18px; padding: 12px 16px; border-radius: var(--r-md); border: 1px solid var(--border); background: var(--surface); }
+.pix__salvo-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pix__salvo-lab { font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--slate-400); }
+.pix__salvo-info strong { font-size: 14.5px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pix__salvo-cpf { font-size: 13px; color: var(--slate-500); font-variant-numeric: tabular-nums; }
+.pix__trocar { flex: none; padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--r-sm); background: none; color: var(--accent-700); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.pix__trocar:hover { background: var(--slate-050); }
 .pix__label { display: block; margin: 0 28px 6px; font-size: 12.5px; font-weight: 600; color: var(--slate-500); }
 .pix__input { display: block; width: calc(100% - 56px); margin: 0 28px 16px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); color: var(--ink); font-size: 15px; font-family: inherit; }
 .pix__input:focus { outline: none; border-color: var(--accent-700); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-700) 18%, transparent); }
