@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/logo-mark.png">
-<link rel="stylesheet" href="assets/style.css?v=2">
+<link rel="stylesheet" href="assets/style.css?v=3">
 <script src="assets/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
@@ -69,41 +69,6 @@
 }
 
 .auth-body { padding: 28px 32px 32px; }
-
-.auth-google {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 12px 20px;
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  cursor: pointer;
-  transition: background .15s, border-color .15s;
-  margin-bottom: 20px;
-}
-.auth-google:hover { background: var(--slate-100); border-color: var(--slate-300); }
-.auth-google svg   { width: 18px; height: 18px; flex-shrink: 0; }
-
-.auth-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  color: var(--text-soft);
-  font-size: 13px;
-}
-.auth-divider::before, .auth-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
 
 .auth-field { margin-bottom: 16px; }
 .auth-field label {
@@ -190,18 +155,6 @@
 
     <div class="auth-body">
       <div id="auth-error" class="auth-error"></div>
-
-      <button class="auth-google" onclick="loginGoogle()">
-        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M17.64 9.2a9.97 9.97 0 0 0-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z" fill="#4285F4"/>
-          <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26a5.4 5.4 0 0 1-8.02-2.83H.96v2.34A9 9 0 0 0 9 18z" fill="#34A853"/>
-          <path d="M3.02 10.73a5.4 5.4 0 0 1 0-3.46V4.93H.96a9 9 0 0 0 0 8.14l2.06-2.34z" fill="#FBBC05"/>
-          <path d="M9 3.58c1.32 0 2.51.45 3.44 1.34l2.58-2.58A9 9 0 0 0 .96 4.93l2.06 2.34A5.36 5.36 0 0 1 9 3.58z" fill="#EA4335"/>
-        </svg>
-        Continuar com Google
-      </button>
-
-      <div class="auth-divider">ou com e-mail</div>
 
       <form id="auth-form" onsubmit="handleSubmit(event)">
         <div class="auth-field">
@@ -301,16 +254,6 @@
       btn.disabled = false;
       btn.textContent = activeTab === 'login' ? 'Entrar' : 'Criar conta';
     }
-  }
-
-  async function loginGoogle() {
-    hideError();
-    var dest = new URLSearchParams(location.search).get('next') || 'consulta.html';
-    var { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: 'https://capivaraonline.digital/' + dest }
-    });
-    if (error) showError(translateError(error.message));
   }
 
   function translateError(msg) {

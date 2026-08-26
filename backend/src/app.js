@@ -3,6 +3,26 @@ const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 
+// Aviso no boot se faltar alguma variável essencial do pagamento. Sem isso, o
+// /api/pagamento/pix falha com um 502 genérico e fica difícil descobrir o motivo.
+(function checarEnvPagamento() {
+  const obrigatorias = [
+    'MISTICPAY_CLIENT_ID',
+    'MISTICPAY_CLIENT_SECRET',
+    'MISTICPAY_WEBHOOK_SECRET',
+    'API_PUBLIC_URL',
+    'SUPABASE_URL',
+    'SUPABASE_SERVICE_KEY',
+  ];
+  const faltando = obrigatorias.filter((v) => !process.env[v]);
+  if (faltando.length) {
+    console.warn(
+      '[env] ⚠ pagamento pode falhar — variáveis ausentes: ' + faltando.join(', ') +
+      ' (veja backend/.env.example)',
+    );
+  }
+})();
+
 const authRoutes       = require('./routes/auth');
 const datasetRoutes    = require('./routes/dataset');
 const landingpageRoutes = require('./routes/landingpage');

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/logo-mark.png">
-<link rel="stylesheet" href="assets/style.css?v=2">
+<link rel="stylesheet" href="assets/style.css?v=3">
 <script src="assets/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
@@ -78,6 +78,8 @@
           <span class="console__kbd">↵ Enter</span>
         </div>
 
+        <!-- palco: reserva a altura do estado mais alto para o card não "pular" -->
+        <div class="console__stage">
         <!-- estado: buscando -->
         <div class="console__loading" hidden>
           <span class="spinner"></span> Consultando fontes públicas…
@@ -100,6 +102,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
             Campos sensíveis desbloqueados no relatório completo
           </div>
+        </div>
         </div>
       </div>
     </div>

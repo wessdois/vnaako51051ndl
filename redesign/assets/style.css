@@ -323,7 +323,11 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
   color: rgba(255,255,255,.4); display: flex; align-items: center; gap: 7px;
 }
 .console__addr svg { width: 12px; height: 12px; stroke: var(--accent); }
-.console__body { padding: 20px; min-height: 360px; }
+.console__body { padding: 20px; }
+/* palco: loading e result ocupam a MESMA célula, então o card sempre tem a
+   altura do estado mais alto (o resultado) e não "pula" ao trocar de estado */
+.console__stage { display: grid; margin-top: 18px; }
+.console__stage > * { grid-column: 1; grid-row: 1; align-self: start; }
 .console__search {
   display: flex; align-items: center; gap: 12px;
   background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
@@ -354,7 +358,7 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
 
 .console__loading {
   display: flex; align-items: center; gap: 10px;
-  margin-top: 18px; padding: 15px 16px;
+  padding: 15px 16px;
   font-family: var(--font-mono); font-size: 13px; color: rgba(255,255,255,.6);
 }
 .console__loading[hidden] { display: none; }
@@ -365,7 +369,8 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.result[hidden] { display: none; }
+/* mantém o box no layout para reservar a altura, apenas invisível */
+.result[hidden] { display: block; visibility: hidden; }
 .result.is-in { animation: cardIn .5s cubic-bezier(.2,.7,.3,1) both; }
 @keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 .result__tag.pop { animation: tagPop .45s cubic-bezier(.2,.9,.3,1.2) both; }
@@ -392,7 +397,7 @@ h1, h2, h3, h4 { line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
 
 /* Cartão de resultado (com dado "censurado" — só visual) */
 .result {
-  margin-top: 18px; border-radius: var(--r-md);
+  border-radius: var(--r-md);
   background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
   padding: 18px;
 }
