@@ -460,10 +460,80 @@ function mapApiFull(raw) {
   return out;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Busca por NOME — cada resultado é uma PESSOA diferente, então extraímos um
+// partial por linha (em vez de fundir tudo numa pessoa só como no fluxo de CPF).
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Monta o partial de UMA pessoa a partir de uma linha genérica (chaves tolerantes
+// entre as várias fontes).
+function personFromRow(row, fonte) {
+  const p = emptyPartial(fonte || 'nome');
+  p.basic = {
+    Nome: N.txt(row.nome || row.NOME || row.name),
+    CPF: N.digitos(row.cpf || row.CPF || row.doc || row.identity || row.cpf_cnpj),
+    DataNascimento: N.data(row.nascimento || row.data_nascimento || row.DT_NASCIMENTO || row.NASC || row.birthDate || row.birthday),
+    Sexo: N.sexo(row.sexo || row.SEXO || row.sex),
+    Mae: N.txt(row.mae || row.NOME_MAE || row.nome_mae || row.mother),
+    Pai: N.txt(row.pai || row.NOME_PAI || row.father),
+  };
+
+  const ddd = N.digitos(row.ddd || row.DDD) || '';
+  const fone = N.digitos(row.fone || row.telefone || row.TELEFONE || row.telephone) || '';
+  const full = (ddd + fone).replace(/\D/g, '') || fone;
+  if (full && full.length >= 8) {
+    p.telefones.push({ Numero: full, DDD: ddd || null, Celular: fone.length === 9 && fone.startsWith('9'), Desde: null, Qualidade: null });
+  }
+
+  const rua = [N.txt(row.tipo_logr || row.TIPO_ENDERECO || row.LOGR_TIPO),
+    N.txt(row.logradouro || row.LOGRADOURO || row.LOGR_NOME || row.endereco || row.end)].filter(Boolean).join(' ') || null;
+  const cidade = N.txt(row.cidade || row.CIDADE);
+  const cep = N.digitos(row.cep || row.CEP);
+  if (rua || cidade || cep) {
+    p.enderecos.push({
+      Rua: rua, Numero: N.txt(row.numu || row.numero || row.NUMERO || row.num),
+      Complemento: N.txt(row.compl || row.complemento || row.COMPLEMENTO),
+      Bairro: N.txt(row.bairro || row.BAIRRO),
+      Cidade: cidade, Estado: N.txt(row.uf || row.UF || row.estado || row.ESTADO),
+      CEP: cep, Desde: null, Atualizado: null,
+    });
+  }
+
+  const email = N.txt(row.email || row.EMAIL);
+  if (email) p.emails.push({ Email: email.toLowerCase(), Score: null, Status: null, Estrutura: null, Blacklist: false, Desde: null });
+  return p;
+}
+
+// Extrai a LISTA de pessoas de uma resposta (uma por registro).
+function extractPessoas(raw) {
+  if (!raw || typeof raw !== 'object') return [];
+  // Serasa por nome: estrutura de pessoa única e rica.
+  if (raw.resultado && raw.resultado.dados) return [mapSerasa(raw)];
+  // dados01 buscar_nome: pessoa única detalhada.
+  if (raw.dados && raw.dados.name) return [mapDados01(raw)];
+
+  const rows = Array.isArray(raw.resultados) ? raw.resultados
+    : Array.isArray(raw.results) ? raw.results
+    : Array.isArray(raw.dados) ? raw.dados
+    : Array.isArray(raw.data) ? raw.data
+    : [];
+
+  const out = [];
+  for (const row of rows) {
+    if (!row || typeof row !== 'object') continue;
+    // Ignora linhas que não são pessoa (veículo/compra sem nome nem cpf).
+    const temPessoa = N.txt(row.nome || row.NOME || row.name) || N.digitos(row.cpf || row.CPF || row.doc || row.identity);
+    if (!temPessoa) continue;
+    out.push(personFromRow(row, 'nome'));
+  }
+  return out;
+}
+
 module.exports = {
   emptyPartial,
   mapSerasa, mapDados01, mapFoto, mapSpc1, mapTelefoneSimples,
   mapSpc2Veic, mapDetran, mapCredautoBin, mapCredautoEmpl,
   mapCompras, mapApiFullRich, mapCadsusSimples, mapSituacao,
   mapApiFull, detectAndMap,
+  personFromRow, extractPessoas,
 };

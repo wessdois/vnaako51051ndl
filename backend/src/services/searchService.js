@@ -158,10 +158,66 @@ function coletarRaw(endpoint, raw, out) {
   if (rawTemConteudo(raw)) out.push({ fonte: nome, dados: sanitizeRaw(raw, 0) });
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Busca por NOME — retorna uma LISTA de pessoas (um dossiê por pessoa distinta),
+// agrupando os registros por CPF (ou, na falta dele, por nome normalizado).
+// ─────────────────────────────────────────────────────────────────────────────
+async function buscarPorNome(valor) {
+  const v = valor.trim();
+  if (!v) return [];
+
+  const fontes = [
+    src('consulta_serasa.php', { nome: v }),
+    src('spc1.php', { nome: v }),
+    src('spc2.php', { nome: v }),
+    src('dados01.php', { action: 'buscar_nome', nome: v }),
+    src('credilink.php', { nome: v }),
+  ];
+
+  const respostas = await Promise.allSettled(
+    fontes.map(async (s) => ({ endpoint: s.endpoint, raw: await call(s.endpoint, s.params) })),
+  );
+
+  const pessoas = [];
+  const rawFontes = [];
+  for (const r of respostas) {
+    if (r.status !== 'fulfilled' || !r.value.raw) continue;
+    coletarRaw(r.value.endpoint, r.value.raw, rawFontes);
+    for (const p of M.extractPessoas(r.value.raw)) if (partialTemDados(p)) pessoas.push(p);
+  }
+  if (!pessoas.length) return [];
+
+  // Agrupa por pessoa: CPF quando existe, senão nome normalizado.
+  const grupos = new Map();
+  for (const p of pessoas) {
+    const cpf = p.basic.CPF ? p.basic.CPF.replace(/\D/g, '') : '';
+    const chave = cpf || 'nome:' + (p.basic.Nome || '').toUpperCase().replace(/\s+/g, ' ').trim();
+    if (chave === 'nome:') continue;
+    if (!grupos.has(chave)) grupos.set(chave, []);
+    grupos.get(chave).push(p);
+  }
+
+  const dossies = [];
+  for (const grupo of grupos.values()) {
+    const d = mergeDossie(grupo);
+    if (dossieTemDados(d)) dossies.push(d);
+  }
+
+  // Prioriza quem tem CPF; limita para não estourar a resposta.
+  dossies.sort((a, b) => (b.BasicData.CPF ? 1 : 0) - (a.BasicData.CPF ? 1 : 0));
+  const top = dossies.slice(0, 30);
+  // O dump cru é grande e cobre todas as pessoas — anexa só no primeiro card.
+  if (top[0]) top[0].RawFontes = rawFontes;
+  return top;
+}
+
 // Entry point. Retorna [] (nada encontrado) ou [dossiê].
 async function buscar(tipo, valorBruto) {
   const valor = cleanValor(tipo, valorBruto);
   if (!valor) return [];
+
+  // Nome tem fluxo próprio: retorna várias pessoas, não uma pessoa fundida.
+  if (tipo === 'nome') return buscarPorNome(valor);
 
   const plano = planFor(tipo, valor);
   if (!plano.length) return [];
