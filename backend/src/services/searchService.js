@@ -8,7 +8,7 @@
 // mapGeneric, que detecta o formato pela forma do objeto — quando o formato
 // exato chegar, basta trocar por um mapper dedicado sem mexer no resto.
 
-const { call } = require('./apisbrasil/client');
+const { call, parseLoose } = require('./apisbrasil/client');
 const M = require('./apisbrasil/mappers');
 const { mergeDossie } = require('./apisbrasil/merge');
 
@@ -119,6 +119,45 @@ function dossieTemDados(r) {
     (r.Enderecos || []).length || (c.Telefones || []).length || (c.Emails || []).length || r.Foto);
 }
 
+// Trunca strings gigantes (base64 de foto etc.) no dump cru, mantendo o resto.
+function sanitizeRaw(v, prof) {
+  if (prof > 6) return null;
+  if (v === null || v === undefined) return v;
+  if (typeof v === 'string') return v.length > 180 ? v.slice(0, 60) + '… [+' + (v.length - 60) + ' chars]' : v;
+  if (Array.isArray(v)) return v.map((x) => sanitizeRaw(x, prof + 1));
+  if (typeof v === 'object') {
+    const o = {};
+    for (const [k, val] of Object.entries(v)) o[k] = sanitizeRaw(val, prof + 1);
+    return o;
+  }
+  return v;
+}
+
+// A resposta crua tem conteúdo aproveitável? (evita despejar fontes vazias)
+function rawTemConteudo(raw) {
+  if (!raw || typeof raw !== 'object') return false;
+  if (raw.sucesso === false || raw.erro === true) return false;
+  for (const chave of ['dados', 'resultado', 'resultados', 'data', 'results']) {
+    const v = raw[chave];
+    if (Array.isArray(v) && v.length) return true;
+    if (v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length) return true;
+  }
+  return false;
+}
+
+// Acumula a resposta crua de cada fonte (api_full é desmembrado por sub-fonte).
+function coletarRaw(endpoint, raw, out) {
+  const nome = endpoint.replace(/\.php$/, '');
+  if (nome === 'api_full' && Array.isArray(raw && raw.dados)) {
+    raw.dados.forEach((item, i) => {
+      const obj = parseLoose(item && item.conteudo);
+      if (rawTemConteudo(obj)) out.push({ fonte: `api_full[${i + 1}]`, dados: sanitizeRaw(obj, 0) });
+    });
+    return;
+  }
+  if (rawTemConteudo(raw)) out.push({ fonte: nome, dados: sanitizeRaw(raw, 0) });
+}
+
 // Entry point. Retorna [] (nada encontrado) ou [dossiê].
 async function buscar(tipo, valorBruto) {
   const valor = cleanValor(tipo, valorBruto);
@@ -130,22 +169,31 @@ async function buscar(tipo, valorBruto) {
   const respostas = await Promise.allSettled(
     plano.map(async (s) => {
       const raw = await call(s.endpoint, s.params);
-      if (!raw) return null;
-      return s.map(raw); // partial | partial[] | null
+      return { endpoint: s.endpoint, raw, mapped: raw ? s.map(raw) : null };
     }),
   );
 
   const partials = [];
+  const rawFontes = [];
   for (const r of respostas) {
     if (r.status !== 'fulfilled' || !r.value) continue;
-    const val = Array.isArray(r.value) ? r.value : [r.value];
-    for (const p of val) if (partialTemDados(p)) partials.push(p);
+    const { endpoint, raw, mapped } = r.value;
+    if (mapped) {
+      const val = Array.isArray(mapped) ? mapped : [mapped];
+      for (const p of val) if (partialTemDados(p)) partials.push(p);
+    }
+    if (raw) coletarRaw(endpoint, raw, rawFontes);
   }
 
   if (!partials.length) return [];
 
   const dossie = mergeDossie(partials);
-  return dossieTemDados(dossie) ? [dossie] : [];
+  if (!dossieTemDados(dossie)) return [];
+
+  // Anexa TODOS os dados crus por fonte — o frontend exibe tudo, inclusive
+  // campos que nenhum mapper específico tratou (e APIs futuras aparecem sozinhas).
+  dossie.RawFontes = rawFontes;
+  return [dossie];
 }
 
 module.exports = { buscar };

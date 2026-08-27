@@ -506,6 +506,50 @@
          + conteudo + '</div>';
   }
 
+  // Achata qualquer objeto/array em pares { k: caminho, v: valor } — usado para
+  // exibir TODOS os campos de todas as fontes, inclusive os não mapeados.
+  function flattenRaw(obj, prefix, out) {
+    out = out || [];
+    if (obj === null || obj === undefined) return out;
+    if (typeof obj !== 'object') {
+      var val = String(obj).trim();
+      if (val && !/^(null|NULL|False|false|undefined|nenhum)$/.test(val)) out.push({ k: prefix, v: val });
+      return out;
+    }
+    if (Array.isArray(obj)) {
+      obj.forEach(function (item, i) {
+        flattenRaw(item, prefix ? prefix + ' [' + (i + 1) + ']' : '[' + (i + 1) + ']', out);
+      });
+      return out;
+    }
+    Object.keys(obj).forEach(function (key) {
+      var chave = prefix ? prefix + ' › ' + key : key;
+      flattenRaw(obj[key], chave, out);
+    });
+    return out;
+  }
+
+  // Seção "todos os dados por fonte" — genérica, mostra tudo que a API devolveu.
+  function buildRawFontes(fontes) {
+    if (!fontes || !fontes.length) return '';
+    var blocos = '';
+    fontes.forEach(function (f) {
+      var rows = flattenRaw(f.dados, '', []);
+      if (!rows.length) return;
+      var grid = '';
+      rows.forEach(function (row) {
+        grid += '<div><div class="dsr__k">' + esc(row.k) + '</div>'
+              + '<div class="dsr__v dsr__v--mono">' + esc(row.v) + '</div></div>';
+      });
+      blocos += '<details class="dsr__tec"><summary>' + esc(f.fonte)
+             + ' — ' + rows.length + ' campo' + (rows.length > 1 ? 's' : '')
+             + '</summary><div class="dsr__tec-grid">' + grid + '</div></details>';
+    });
+    if (!blocos) return '';
+    return '<div class="rpt__body"><div class="rpt__sec-label">Todos os dados encontrados (por fonte)</div>'
+         + blocos + '</div>';
+  }
+
   // ---- Dossiê completo — todos os dados retornados pela API ----
   function buildDossie(r) {
     var bd    = r.BasicData || {};
@@ -736,6 +780,9 @@
       th += '</div></details>';
       h += '<div class="rpt__body">' + th + '</div>';
     }
+
+    // ── Todos os dados por fonte (exibe TUDO que as APIs retornaram) ──
+    h += buildRawFontes(r.RawFontes);
 
     return h;
   }
