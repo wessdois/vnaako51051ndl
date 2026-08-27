@@ -58,6 +58,7 @@
     <div class="searchcard__pad">
       <nav class="tabs">
         <button type="button" class="tabs__btn is-active" data-tab="doc">CPF</button>
+        <button type="button" class="tabs__btn" data-tab="nome">Nome</button>
         <button type="button" class="tabs__btn" data-tab="rg">RG</button>
         <button type="button" class="tabs__btn" data-tab="email">E-mail</button>
         <button type="button" class="tabs__btn" data-tab="phone">Telefone</button>
@@ -253,6 +254,7 @@
   // ── Configuração dos tabs de busca ──
   var TAB_CFG = {
     doc:   { title: 'Pesquisar por CPF',      sub: 'Busca exata pelo número do CPF da pessoa.',           label: 'Insira o CPF que você quer pesquisar',          ph: '000.000.000-00',    type: 'text',  mode: 'numeric', btn: 'Pesquisar CPF',      filters: false },
+    nome:  { title: 'Pesquisar por Nome',     sub: 'Localize uma pessoa pelo nome completo.',             label: 'Insira o Nome completo que você quer pesquisar',ph: 'Ex.: João da Silva Souza', type: 'text', mode: 'text', btn: 'Pesquisar Nome',     filters: false },
     rg:    { title: 'Pesquisar por RG',       sub: 'Localize uma pessoa pelo número do RG.',              label: 'Insira o RG que você quer pesquisar',           ph: 'Ex.: 12345678',     type: 'text',  mode: 'numeric', btn: 'Pesquisar RG',       filters: false },
     email: { title: 'Pesquisar por E-mail',   sub: 'Descubra o titular de um endereço de e-mail.',        label: 'Insira o E-mail que você quer pesquisar',       ph: 'Ex.: joao@email.com',type: 'email', mode: 'email',   btn: 'Pesquisar E-mail',   filters: false },
     phone: { title: 'Pesquisar por Telefone', sub: 'Identifique o dono de um número de celular ou fixo.', label: 'Insira o Telefone que você quer pesquisar',     ph: '(11) 99999-9999',   type: 'tel',   mode: 'tel',     btn: 'Pesquisar Telefone', filters: false },
