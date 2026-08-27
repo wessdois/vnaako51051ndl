@@ -61,6 +61,9 @@
         <button type="button" class="tabs__btn" data-tab="rg">RG</button>
         <button type="button" class="tabs__btn" data-tab="email">E-mail</button>
         <button type="button" class="tabs__btn" data-tab="phone">Telefone</button>
+        <button type="button" class="tabs__btn" data-tab="placa">Placa</button>
+        <button type="button" class="tabs__btn" data-tab="cnpj">CNPJ</button>
+        <button type="button" class="tabs__btn" data-tab="cep">CEP</button>
       </nav>
 
       <form id="form-search" method="post">
@@ -253,6 +256,9 @@
     rg:    { title: 'Pesquisar por RG',       sub: 'Localize uma pessoa pelo número do RG.',              label: 'Insira o RG que você quer pesquisar',           ph: 'Ex.: 12345678',     type: 'text',  mode: 'numeric', btn: 'Pesquisar RG',       filters: false },
     email: { title: 'Pesquisar por E-mail',   sub: 'Descubra o titular de um endereço de e-mail.',        label: 'Insira o E-mail que você quer pesquisar',       ph: 'Ex.: joao@email.com',type: 'email', mode: 'email',   btn: 'Pesquisar E-mail',   filters: false },
     phone: { title: 'Pesquisar por Telefone', sub: 'Identifique o dono de um número de celular ou fixo.', label: 'Insira o Telefone que você quer pesquisar',     ph: '(11) 99999-9999',   type: 'tel',   mode: 'tel',     btn: 'Pesquisar Telefone', filters: false },
+    placa: { title: 'Pesquisar por Placa',    sub: 'Dados do veículo e do proprietário pela placa.',     label: 'Insira a Placa que você quer pesquisar',        ph: 'Ex.: ABC1D23',      type: 'text',  mode: 'text',    btn: 'Pesquisar Placa',    filters: false },
+    cnpj:  { title: 'Pesquisar por CNPJ',     sub: 'Consulte uma empresa pelo número do CNPJ.',          label: 'Insira o CNPJ que você quer pesquisar',         ph: '00.000.000/0000-00',type: 'text',  mode: 'numeric', btn: 'Pesquisar CNPJ',     filters: false },
+    cep:   { title: 'Pesquisar por CEP',      sub: 'Encontre pessoas e endereços ligados a um CEP.',     label: 'Insira o CEP que você quer pesquisar',          ph: '00000-000',         type: 'text',  mode: 'numeric', btn: 'Pesquisar CEP',      filters: false },
   };
   var activeTab = 'doc';
 
@@ -268,6 +274,22 @@
     if (v.length === 11) v = '('+v.slice(0,2)+') '+v.slice(2,7)+'-'+v.slice(7);
     else if (v.length === 10) v = '('+v.slice(0,2)+') '+v.slice(2,6)+'-'+v.slice(6);
     e.target.value = v;
+  }
+  function maskCnpj(e) {
+    var v = e.target.value.replace(/\D/g, '').slice(0, 14);
+    if (v.length > 12) v = v.slice(0,2)+'.'+v.slice(2,5)+'.'+v.slice(5,8)+'/'+v.slice(8,12)+'-'+v.slice(12);
+    else if (v.length > 8) v = v.slice(0,2)+'.'+v.slice(2,5)+'.'+v.slice(5,8)+'/'+v.slice(8);
+    else if (v.length > 5) v = v.slice(0,2)+'.'+v.slice(2,5)+'.'+v.slice(5);
+    else if (v.length > 2) v = v.slice(0,2)+'.'+v.slice(2);
+    e.target.value = v;
+  }
+  function maskCep(e) {
+    var v = e.target.value.replace(/\D/g, '').slice(0, 8);
+    if (v.length > 5) v = v.slice(0,5)+'-'+v.slice(5);
+    e.target.value = v;
+  }
+  function maskPlaca(e) {
+    e.target.value = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 7);
   }
 
   function switchTab(tab) {
@@ -292,8 +314,14 @@
 
     inp.removeEventListener('input', maskCpf);
     inp.removeEventListener('input', maskPhone);
+    inp.removeEventListener('input', maskCnpj);
+    inp.removeEventListener('input', maskCep);
+    inp.removeEventListener('input', maskPlaca);
     if (tab === 'doc')   inp.addEventListener('input', maskCpf);
     if (tab === 'phone') inp.addEventListener('input', maskPhone);
+    if (tab === 'cnpj')  inp.addEventListener('input', maskCnpj);
+    if (tab === 'cep')   inp.addEventListener('input', maskCep);
+    if (tab === 'placa') inp.addEventListener('input', maskPlaca);
 
     inp.focus();
   }
@@ -456,6 +484,9 @@
     phone: '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.6 3.34 2 2 0 0 1 3.6 1.15h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 7.4 7.4l.95-.95a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
     mail:  '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>',
     pin:   '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+    car:   '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 0 1-2-2v-3l2-5a2 2 0 0 1 2-1.4h6a2 2 0 0 1 2 1.4l2 5v3a2 2 0 0 1-2 2M7 17v2M17 17v2"/><circle cx="7.5" cy="14.5" r="1"/><circle cx="16.5" cy="14.5" r="1"/></svg>',
+    cart:  '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+    id:    '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M15 8h3M15 12h3M7 16h10"/></svg>',
   };
 
   // Campo simples do grid
@@ -537,6 +568,29 @@
       + gvm('NIS/PIS', doc.NIS)
       + gvm('CNS', bd.CNS);
     h += secao('Documentos', docs ? '<div class="dsr__grid">' + docs + '</div>' : '');
+
+    // ── Situação cadastral (Receita Federal) ──
+    if (r.SituacaoCadastral && r.SituacaoCadastral.Status) {
+      var sit = r.SituacaoCadastral;
+      var sitOk = /REGULAR|ATIVA|ATIVO/i.test(sit.Status) && !/PENDENTE|SUSPEN|CANCEL|IRREGULAR|TITULAR FALECIDO/i.test(sit.Status);
+      h += secao('Situação cadastral',
+        '<div class="dsr__grid"><div><div class="dsr__k">' + esc(sit.Fonte || 'Receita Federal') + '</div>'
+        + '<div class="dsr__v"><span class="dsr__pill dsr__pill--' + (sitOk ? 'ok' : 'bad') + '">' + esc(sit.Status) + '</span></div></div></div>');
+    }
+
+    // ── Identidade (RG detalhado) ──
+    var idn = r.Identidade || {};
+    var idH = gv('Naturalidade', idn.Naturalidade)
+      + gv('Estado civil', idn.EstadoCivil)
+      + gv('Escolaridade', idn.Escolaridade)
+      + gv('Ocupação', idn.Ocupacao)
+      + gv('Cor da pele', idn.CorPele)
+      + gv('Cor dos olhos', [idn.CorOlhos, idn.TipoOlhos].filter(Boolean).join(' · '))
+      + gv('Cabelo', [idn.CorCabelo, idn.TipoCabelo].filter(Boolean).join(' · '))
+      + gv('Altura', idn.Altura ? idn.Altura + ' m' : null)
+      + gv('Emissão do RG', idn.DataEmissaoRG ? fmtData(idn.DataEmissaoRG) : null)
+      + gv('Cartório', idn.Cartorio);
+    h += secao('Identidade', idH ? '<div class="dsr__grid">' + idH + '</div>' : '');
 
     // ── Filiação e vínculos ──
     var fam = gv('Mãe', bd.Mae) + gv('Pai', bd.Pai);
@@ -628,6 +682,50 @@
       h += secao('Endereços (' + ends.length + ')', eh);
     }
 
+    // ── Veículos ──
+    var veics = r.Veiculos || [];
+    if (veics.length) {
+      var vh = '<div class="dsr__list">';
+      veics.forEach(function(v) {
+        var titulo = [v.Marca, v.Modelo].filter(Boolean).filter(function(x, i, a) { return a.indexOf(x) === i; }).join(' ') || v.Placa || 'Veículo';
+        var anos = [v.AnoFabricacao, v.AnoModelo].filter(Boolean);
+        var ano = anos.length === 2 && anos[0] !== anos[1] ? anos[0] + '/' + anos[1] : (anos[0] || '');
+        vh += '<div class="dsr__row">'
+          + '<div class="dsr__row-ico">' + ICO.car + '</div>'
+          + '<div class="dsr__row-main">'
+          + '<div class="dsr__row-v">' + esc(titulo) + (ano ? ' <span class="dsr__row-sub" style="display:inline">' + esc(ano) + '</span>' : '') + '</div>'
+          + '<div class="dsr__row-sub">'
+          + (v.Placa ? '<span class="dsr__tag">' + esc(v.Placa) + '</span>' : '')
+          + (v.Renavam ? '<span>Renavam ' + esc(v.Renavam) + '</span>' : '')
+          + (v.Chassi ? '<span>Chassi ' + esc(v.Chassi) + '</span>' : '')
+          + (v.Combustivel ? '<span class="dsr__tag">' + esc(v.Combustivel) + '</span>' : '')
+          + (v.Estado ? '<span>' + esc([v.Cidade, v.Estado].filter(Boolean).join('/')) + '</span>' : '')
+          + (v.Proprietario ? '<span>Prop.: ' + esc(v.Proprietario) + '</span>' : '')
+          + '</div></div></div>';
+      });
+      vh += '</div>';
+      h += secao('Veículos (' + veics.length + ')', vh);
+    }
+
+    // ── Histórico de compras ──
+    var compras = r.Compras || [];
+    if (compras.length) {
+      var ch = '<div class="dsr__list">';
+      compras.slice(0, 30).forEach(function(c) {
+        ch += '<div class="dsr__row">'
+          + '<div class="dsr__row-ico">' + ICO.cart + '</div>'
+          + '<div class="dsr__row-main">'
+          + '<div class="dsr__row-v">' + esc(c.Nome || '—') + '</div>'
+          + '<div class="dsr__row-sub">'
+          + (c.Email ? '<span>' + esc(c.Email) + '</span>' : '')
+          + (c.Telefone ? '<span class="dsr__tag">' + esc(fmtFone(c.Telefone)) + '</span>' : '')
+          + (c.Data ? '<span>' + esc(fmtData(c.Data)) + '</span>' : '')
+          + '</div></div></div>';
+      });
+      ch += '</div>';
+      h += secao('Histórico de compras (' + compras.length + ')', ch);
+    }
+
     // ── Dados técnicos (códigos brutos da fonte) ──
     if (tec) {
       var th = '<details class="dsr__tec"><summary>Dados técnicos da fonte</summary><div class="dsr__tec-grid">';
@@ -674,6 +772,11 @@
     if (nFones) locked.push({ e:'📱', l: nFones > 1 ? nFones + ' telefones' : 'Telefone' });
     if (nMails) locked.push({ e:'✉️', l: nMails > 1 ? nMails + ' e-mails' : 'E-mail' });
     if (ends.length)     locked.push({ e:'📍', l: ends.length > 1 ? ends.length + ' endereços' : 'Endereço' });
+    if (r.Foto)          locked.push({ e:'📷', l:'Foto' });
+    if (r.Identidade)    locked.push({ e:'🪪', l:'Identidade detalhada' });
+    if (r.SituacaoCadastral) locked.push({ e:'🏛️', l:'Situação na Receita' });
+    if (r.Veiculos && r.Veiculos.length) locked.push({ e:'🚗', l: r.Veiculos.length > 1 ? r.Veiculos.length + ' veículos' : 'Veículo' });
+    if (r.Compras && r.Compras.length)   locked.push({ e:'🛒', l:'Histórico de compras' });
     if (bd.Falecido && bd.DataFalecimento) locked.push({ e:'📅', l:'Data de falecimento' });
 
     var totalCampos = (bd.CPF ? 1 : 0) + (nasc ? 1 : 0) + (bd.Sexo ? 1 : 0) + locked.length;
@@ -708,7 +811,14 @@
 
     // ── Cabeçalho escuro ──
     h += '<div class="rpt__hd"><div class="rpt__hd-row">';
-    h += '<div class="rpt__avatar">' + ini + '</div>';
+    // Foto real só no dossiê liberado; na prévia mantém as iniciais (é dado premium).
+    if (uncensored && r.Foto && r.Foto.Imagem) {
+      var src = /^data:/.test(r.Foto.Imagem) ? r.Foto.Imagem : 'data:image/jpeg;base64,' + r.Foto.Imagem;
+      h += '<div class="rpt__avatar rpt__avatar--foto"><img src="' + esc(src) + '" alt="Foto" '
+        + 'onerror="this.parentNode.textContent=\'' + esc(ini) + '\'"></div>';
+    } else {
+      h += '<div class="rpt__avatar">' + ini + '</div>';
+    }
 
     h += '<div class="rpt__hd-info">';
     h += '<div class="rpt__name">' + (bd.Nome || 'Não informado') + '</div>';

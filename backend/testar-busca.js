@@ -1,38 +1,52 @@
-// Testa a conexão e as 4 buscas direto no banco, sem subir o servidor.
-// Rode com: node testar-busca.js
+// Testa o fan-out de busca de ponta a ponta (faz chamadas reais à fonte).
+// Rode com: node testar-busca.js [tipo] [valor]
+//   ex.: node testar-busca.js cpf 60235209872
+//        node testar-busca.js placa MNL9299
+// Sem argumentos, roda uma bateria de casos padrão.
 require('dotenv').config();
-const search = require('./src/services/searchService');
-const pool = require('./src/db/connection');
+const { buscar } = require('./src/services/searchService');
 
-async function main() {
-  const casos = [
-    ['Nome (sem acento, parcial)', () => search.buscarPorNome('joao silva')],
-    ['Nome (palavras separadas)',  () => search.buscarPorNome('jose ferreira')],
-    ['Nome (erro de digitação)',   () => search.buscarPorNome('maria aparecida oliveria')],
-    ['CPF',                        () => search.buscarPorCpf('222.333.444-57')],
-    ['Email',                      () => search.buscarPorEmail('anapaula@email.com')],
-    ['Telefone',                   () => search.buscarPorTelefone('(11) 98765-4321')],
-  ];
-
-  for (const [label, fn] of casos) {
-    try {
-      const rows = await fn();
-      const nomes = rows.map((r) => r.nome).join(', ') || '(nenhum resultado)';
-      console.log(`✓ ${label.padEnd(30)} → ${nomes}`);
-    } catch (err) {
-      console.log(`✗ ${label.padEnd(30)} → ERRO: ${err.message}`);
+async function um(tipo, valor) {
+  const t0 = Date.now();
+  try {
+    const out = await buscar(tipo, valor);
+    const ms = Date.now() - t0;
+    if (!out.length) {
+      console.log(`✗ ${tipo.padEnd(9)} ${String(valor).padEnd(20)} → nada encontrado (${ms}ms)`);
+      return;
     }
+    const r = out[0];
+    const resumo = [
+      r.BasicData.Nome || '(sem nome)',
+      r.Contatos.Telefones.length + ' tel',
+      r.Contatos.Emails.length + ' email',
+      r.Enderecos.length + ' end',
+      r.Veiculos.length + ' veic',
+      r.Compras.length + ' compras',
+      r.Foto ? 'foto' : '',
+    ].filter(Boolean).join(' · ');
+    console.log(`✓ ${tipo.padEnd(9)} ${String(valor).padEnd(20)} → ${resumo} (${ms}ms) | fontes: ${r.Fontes.join(', ')}`);
+    return r;
+  } catch (err) {
+    console.log(`✗ ${tipo.padEnd(9)} ${String(valor).padEnd(20)} → ERRO: ${err.message}`);
   }
-
-  // Mostra como fica o JSON que o frontend recebe
-  const rows = await search.buscarPorNome('joao silva');
-  console.log('\nJSON retornado ao frontend:');
-  console.log(JSON.stringify({ Result: search.formatarResultado(rows), censored: true }, null, 2));
-
-  await pool.end();
 }
 
-main().catch((e) => {
-  console.error('Falhou:', e.message);
-  process.exit(1);
-});
+async function main() {
+  const [, , tipoArg, valorArg] = process.argv;
+  if (tipoArg && valorArg) {
+    const r = await um(tipoArg, valorArg);
+    if (r) console.log('\n' + JSON.stringify({ Result: [r], censored: true }, null, 2));
+    return;
+  }
+
+  const casos = [
+    ['cpf', '60235209872'],
+    ['telefone', '42984138233'],
+    ['email', 'valdambroski@hotmail.com'],
+    ['placa', 'MNL9299'],
+  ];
+  for (const [tipo, valor] of casos) await um(tipo, valor);
+}
+
+main().catch((e) => { console.error('Falhou:', e.message); process.exit(1); });

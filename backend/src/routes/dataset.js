@@ -1,16 +1,22 @@
 const router      = require('express').Router();
-const { buscar, mapear } = require('../services/searchService');
+const { buscar }  = require('../services/searchService');
 const extractUser = require('../middleware/authSupabase');
 const db          = require('../services/supabase');
 
 router.post('/people/basic/v2', extractUser, async (req, res) => {
-  const { doc, rg, email, phone } = req.body;
+  const { doc, rg, email, phone, placa, cnpj, cep, nome_mae, nome } = req.body;
 
+  // Cada aba do frontend manda um campo; mapeamos para o tipo interno da busca.
   let tipo, valor;
-  if (doc)        { tipo = 'cpf';      valor = doc; }
-  else if (rg)    { tipo = 'rg';       valor = rg; }
-  else if (email) { tipo = 'email';    valor = email; }
-  else if (phone) { tipo = 'telefone'; valor = phone; }
+  if (doc)           { tipo = 'cpf';      valor = doc; }
+  else if (rg)       { tipo = 'rg';       valor = rg; }
+  else if (email)    { tipo = 'email';    valor = email; }
+  else if (phone)    { tipo = 'telefone'; valor = phone; }
+  else if (placa)    { tipo = 'placa';    valor = placa; }
+  else if (cnpj)     { tipo = 'cnpj';     valor = cnpj; }
+  else if (cep)      { tipo = 'cep';      valor = cep; }
+  else if (nome_mae) { tipo = 'nome_mae'; valor = nome_mae; }
+  else if (nome)     { tipo = 'nome';     valor = nome; }
   else return res.status(400).json({ status: 'error', message: 'Informe ao menos um parâmetro' });
 
   const user = req.user;
@@ -22,8 +28,7 @@ router.post('/people/basic/v2', extractUser, async (req, res) => {
   }
 
   try {
-    const raw      = await buscar(tipo, valor);
-    const resultado = mapear(raw);
+    const resultado = await buscar(tipo, valor);
 
     if (!resultado.length) return res.json({ status: 'not_found' });
 
