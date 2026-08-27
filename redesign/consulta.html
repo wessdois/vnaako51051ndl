@@ -1016,8 +1016,21 @@
             return;
           }
 
-          var vazio = (!response.Result || !response.Result.length
-            || !response.Result[0].BasicData || !response.Result[0].BasicData.Nome);
+          // Um resultado é válido se tiver QUALQUER dado útil — não só nome de
+          // pessoa. Buscas por placa/CNPJ retornam veículos/endereços sem Nome.
+          var r0 = (response.Result && response.Result[0]) || null;
+          var bd0 = (r0 && r0.BasicData) || {};
+          var c0  = (r0 && r0.Contatos) || {};
+          var temAlgo = r0 && (
+            bd0.Nome || bd0.CPF ||
+            (r0.Veiculos && r0.Veiculos.length) ||
+            (r0.Compras && r0.Compras.length) ||
+            (r0.Enderecos && r0.Enderecos.length) ||
+            (c0.Telefones && c0.Telefones.length) ||
+            (c0.Emails && c0.Emails.length) ||
+            r0.Foto
+          );
+          var vazio = !response.Result || !response.Result.length || !temAlgo;
 
           if (response.status === 'not_found' || vazio) {
             gtag('event', 'result_nao_encontrado', {});
