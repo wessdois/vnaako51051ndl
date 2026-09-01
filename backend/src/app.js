@@ -28,6 +28,7 @@ const datasetRoutes    = require('./routes/dataset');
 const landingpageRoutes = require('./routes/landingpage');
 const checkoutRoutes   = require('./routes/checkout');
 const pagamentoRoutes  = require('./routes/pagamento');
+const adminRoutes      = require('./routes/admin');
 
 const app = express();
 
@@ -58,6 +59,7 @@ const searchLimiter = rateLimit({
 app.use('/api/auth', authRoutes);
 app.use('/api/public/dataset', searchLimiter, datasetRoutes);
 app.use('/api/landingpage', landingpageRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/pagamento', pagamentoRoutes);
 app.use('/checkout', checkoutRoutes);
 app.use('/api/checkout', checkoutRoutes);

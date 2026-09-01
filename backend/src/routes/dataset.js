@@ -30,6 +30,9 @@ router.post('/people/basic/v2', extractUser, async (req, res) => {
   try {
     const resultado = await buscar(tipo, valor);
 
+    // Registra a busca para as métricas do admin (grátis = sem login).
+    db.logSearch({ userId: user ? user.id : null, tipo, gratis: !user }).catch(() => {});
+
     if (!resultado.length) return res.json({ status: 'not_found' });
 
     if (user) {

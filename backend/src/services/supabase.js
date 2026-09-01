@@ -122,6 +122,114 @@ async function creditPurchase(id) {
   return data;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Registro de buscas (grátis e pagas) — alimenta as métricas do painel admin.
+// Tolerante: se a tabela search_logs ainda não existir, não trava a busca.
+// ─────────────────────────────────────────────────────────────────────────────
+async function logSearch({ userId, tipo, gratis }) {
+  try {
+    await axios.post(
+      `${BASE()}/search_logs`,
+      { user_id: userId || null, tipo: tipo || null, gratis: !!gratis },
+      { headers: adminHeaders({ Prefer: 'return=minimal' }) },
+    );
+  } catch (err) {
+    // Silencioso de propósito: métrica não pode derrubar a funcionalidade.
+  }
+}
+
+// Conta linhas de uma tabela via header content-range (Prefer: count=exact).
+async function countRows(table, selectCol, filtro) {
+  try {
+    const resp = await axios.get(`${BASE()}/${table}`, {
+      headers: adminHeaders({ Prefer: 'count=exact', Range: '0-0' }),
+      params: { select: selectCol, ...(filtro || {}) },
+    });
+    const cr = resp.headers['content-range'] || '*/0';
+    return parseInt(cr.split('/')[1], 10) || 0;
+  } catch (err) {
+    console.error(`[admin] countRows ${table}:`, err.message);
+    return 0;
+  }
+}
+
+async function searchStats() {
+  const hoje = new Date().toISOString().slice(0, 10);
+  const total  = await countRows('search_logs', 'id');
+  const gratis = await countRows('search_logs', 'id', { gratis: 'is.true' });
+  const hojeN  = await countRows('search_logs', 'id', { created_at: `gte.${hoje}` });
+  return { total, gratis, pagas: Math.max(0, total - gratis), hoje: hojeN };
+}
+
+async function adminMetrics() {
+  const usuarios     = await countRows('user_credits', 'user_id');
+  const vendasPagas  = await countRows('purchases', 'id', { status: 'eq.paid' });
+  const vendasPend   = await countRows('purchases', 'id', { status: 'eq.pending' });
+
+  let faturamento = 0;
+  try {
+    const { data } = await axios.get(`${BASE()}/purchases`, {
+      headers: adminHeaders(),
+      params: { select: 'amount', status: 'eq.paid' },
+    });
+    faturamento = (data || []).reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+  } catch (err) {
+    console.error('[admin] faturamento:', err.message);
+  }
+
+  const buscas = await searchStats();
+  return {
+    usuarios,
+    vendas: { pagas: vendasPagas, pendentes: vendasPend, faturamento: Math.round(faturamento * 100) / 100 },
+    buscas,
+  };
+}
+
+async function adminListUsers(limit = 50) {
+  try {
+    const { data } = await axios.get(`${process.env.SUPABASE_URL}/auth/v1/admin/users`, {
+      headers: adminHeaders(),
+      params: { per_page: limit },
+    });
+    const users = (data && data.users) || [];
+
+    const { data: creds } = await axios.get(`${BASE()}/user_credits`, {
+      headers: adminHeaders(),
+      params: { select: 'user_id,credits_remaining' },
+    });
+    const mapa = {};
+    (creds || []).forEach((c) => { mapa[c.user_id] = c.credits_remaining; });
+
+    return users.map((u) => ({
+      id: u.id,
+      email: u.email,
+      criado: u.created_at,
+      ultimoLogin: u.last_sign_in_at,
+      creditos: mapa[u.id] ?? 0,
+    }));
+  } catch (err) {
+    console.error('[admin] adminListUsers:', err.message);
+    return [];
+  }
+}
+
+async function adminListSales(limit = 50) {
+  try {
+    const { data } = await axios.get(`${BASE()}/purchases`, {
+      headers: adminHeaders(),
+      params: {
+        select: 'id,sku,credits,amount,status,payer_name,created_at,paid_at',
+        order: 'created_at.desc',
+        limit,
+      },
+    });
+    return data || [];
+  } catch (err) {
+    console.error('[admin] adminListSales:', err.message);
+    return [];
+  }
+}
+
 module.exports = {
   getCredits,
   deductCredit,
@@ -131,4 +239,8 @@ module.exports = {
   getPurchase,
   getUltimoPagador,
   creditPurchase,
+  logSearch,
+  adminMetrics,
+  adminListUsers,
+  adminListSales,
 };

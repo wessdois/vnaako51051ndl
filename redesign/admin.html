@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel Admin | Capivara Online</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/logo-mark.png">
+<link rel="stylesheet" href="assets/style.css?v=3">
+<script src="assets/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  .adm { max-width: 1080px; margin: 0 auto; padding: 32px 20px 80px; }
+  .adm__top { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:28px; flex-wrap:wrap; }
+  .adm__title { font-size:24px; font-weight:800; letter-spacing:-0.02em; color:var(--text); }
+  .adm__sub { font-size:13px; color:var(--text-soft); margin-top:2px; }
+  .adm__cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:32px; }
+  .adm__card { background:var(--surface,#fff); border:1px solid var(--border,#e5e7eb); border-radius:16px; padding:20px; }
+  .adm__card-lbl { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-soft,#6b7280); }
+  .adm__card-val { font-size:30px; font-weight:800; letter-spacing:-0.03em; color:var(--text,#111); margin-top:6px; }
+  .adm__card-sub { font-size:12px; color:var(--text-soft,#6b7280); margin-top:4px; }
+  .adm__sec { font-size:14px; font-weight:700; color:var(--text); margin:28px 0 12px; }
+  .adm__tablewrap { overflow-x:auto; border:1px solid var(--border,#e5e7eb); border-radius:14px; }
+  table.adm__t { width:100%; border-collapse:collapse; font-size:13px; }
+  .adm__t th { text-align:left; padding:11px 14px; background:var(--slate-050,#f8fafc); color:var(--text-soft,#6b7280); font-weight:600; white-space:nowrap; border-bottom:1px solid var(--border,#e5e7eb); }
+  .adm__t td { padding:11px 14px; border-bottom:1px solid var(--border,#eef1f4); color:var(--text,#111); white-space:nowrap; }
+  .adm__t tr:last-child td { border-bottom:0; }
+  .adm__t td.mono { font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .badge { display:inline-block; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:700; }
+  .badge--paid { background:#dcfce7; color:#166534; }
+  .badge--pending { background:#fef9c3; color:#854d0e; }
+  .badge--other { background:#f1f5f9; color:#475569; }
+  .adm__msg { text-align:center; padding:80px 20px; color:var(--text-soft,#6b7280); }
+  .adm__msg h2 { font-size:20px; color:var(--text,#111); margin-bottom:8px; }
+  .adm__btn { display:inline-block; margin-top:16px; padding:10px 20px; border-radius:10px; background:var(--brand,#e8531f); color:#fff; font-weight:700; text-decoration:none; border:0; cursor:pointer; }
+  .adm__refresh { padding:9px 16px; border-radius:10px; border:1px solid var(--border,#e5e7eb); background:var(--surface,#fff); color:var(--text,#111); font-weight:600; cursor:pointer; font-size:13px; }
+</style>
+</head>
+<body>
+
+<div class="adm" id="adm-root">
+  <div class="adm__msg" id="adm-loading">
+    <h2>Carregando painel…</h2>
+    <p>Verificando permissões.</p>
+  </div>
+
+  <div id="adm-denied" style="display:none;">
+    <div class="adm__msg">
+      <h2>Acesso restrito</h2>
+      <p id="adm-denied-txt">Esta área é exclusiva do administrador.</p>
+      <a class="adm__btn" href="login.html">Entrar</a>
+    </div>
+  </div>
+
+  <div id="adm-panel" style="display:none;">
+    <div class="adm__top">
+      <div>
+        <div class="adm__title">Painel administrativo</div>
+        <div class="adm__sub" id="adm-who"></div>
+      </div>
+      <button class="adm__refresh" onclick="carregarTudo()">↻ Atualizar</button>
+    </div>
+
+    <div class="adm__cards" id="adm-cards"></div>
+
+    <div class="adm__sec">Vendas recentes</div>
+    <div class="adm__tablewrap">
+      <table class="adm__t" id="adm-sales">
+        <thead><tr><th>Data</th><th>Plano</th><th>Créditos</th><th>Valor</th><th>Status</th><th>Pagador</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="adm__sec">Usuários cadastrados</div>
+    <div class="adm__tablewrap">
+      <table class="adm__t" id="adm-users">
+        <thead><tr><th>E-mail</th><th>Créditos</th><th>Cadastro</th><th>Último login</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  var cfg = window.APP_CONFIG || {};
+  var API = (cfg.API_BASE || '') + '/api/admin';
+  var sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+  var token = null;
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function brl(v) {
+    var n = parseFloat(v) || 0;
+    return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fdata(d) {
+    if (!d) return '—';
+    var dt = new Date(d);
+    if (isNaN(dt)) return '—';
+    return dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+  }
+  function api(path) {
+    return fetch(API + path, { headers: { Authorization: 'Bearer ' + token } })
+      .then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
+
+  function mostrar(id) {
+    ['adm-loading','adm-denied','adm-panel'].forEach(function(x){
+      document.getElementById(x).style.display = (x === id) ? '' : 'none';
+    });
+  }
+
+  function card(lbl, val, sub) {
+    return '<div class="adm__card"><div class="adm__card-lbl">' + esc(lbl) + '</div>'
+      + '<div class="adm__card-val">' + esc(val) + '</div>'
+      + (sub ? '<div class="adm__card-sub">' + esc(sub) + '</div>' : '') + '</div>';
+  }
+
+  function renderMetrics(m) {
+    var v = m.vendas || {}, b = m.buscas || {};
+    document.getElementById('adm-cards').innerHTML =
+        card('Usuários cadastrados', m.usuarios || 0)
+      + card('Faturamento', brl(v.faturamento), (v.pagas || 0) + ' venda(s) paga(s)')
+      + card('Vendas pendentes', v.pendentes || 0, 'aguardando pagamento')
+      + card('Buscas — total', b.total || 0, (b.hoje || 0) + ' hoje')
+      + card('Buscas grátis', b.gratis || 0, 'não logados')
+      + card('Buscas pagas', b.pagas || 0, 'usuários logados');
+  }
+
+  function badge(status) {
+    var s = String(status || '').toLowerCase();
+    var cls = s === 'paid' ? 'paid' : (s === 'pending' ? 'pending' : 'other');
+    var txt = s === 'paid' ? 'Pago' : (s === 'pending' ? 'Pendente' : (status || '—'));
+    return '<span class="badge badge--' + cls + '">' + esc(txt) + '</span>';
+  }
+
+  function renderSales(rows) {
+    var tb = document.querySelector('#adm-sales tbody');
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="6" style="color:var(--text-soft)">Nenhuma venda ainda.</td></tr>'; return; }
+    tb.innerHTML = rows.map(function(s){
+      return '<tr>'
+        + '<td>' + esc(fdata(s.created_at)) + '</td>'
+        + '<td>' + esc(s.sku || '—') + '</td>'
+        + '<td>' + esc(s.credits != null ? s.credits : '—') + '</td>'
+        + '<td>' + esc(brl(s.amount)) + '</td>'
+        + '<td>' + badge(s.status) + '</td>'
+        + '<td>' + esc(s.payer_name || '—') + '</td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  function renderUsers(rows) {
+    var tb = document.querySelector('#adm-users tbody');
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="4" style="color:var(--text-soft)">Nenhum usuário.</td></tr>'; return; }
+    tb.innerHTML = rows.map(function(u){
+      return '<tr>'
+        + '<td>' + esc(u.email || '—') + '</td>'
+        + '<td>' + esc(u.creditos != null ? u.creditos : 0) + '</td>'
+        + '<td>' + esc(fdata(u.criado)) + '</td>'
+        + '<td>' + esc(fdata(u.ultimoLogin)) + '</td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  function carregarTudo() {
+    Promise.all([api('/metrics'), api('/sales?limit=100'), api('/users?limit=200')])
+      .then(function(res){
+        renderMetrics(res[0]);
+        renderSales(res[1].sales || []);
+        renderUsers(res[2].users || []);
+      })
+      .catch(function(e){ console.error('admin load', e); });
+  }
+
+  sb.auth.getSession().then(function(r){
+    var session = r.data.session;
+    if (!session) {
+      mostrar('adm-denied');
+      document.getElementById('adm-denied-txt').textContent = 'Você precisa entrar com a conta de administrador.';
+      return;
+    }
+    token = session.access_token;
+    api('/whoami').then(function(w){
+      if (!w.admin) {
+        mostrar('adm-denied');
+        document.getElementById('adm-denied-txt').textContent = 'A conta ' + (w.email || '') + ' não tem acesso de administrador.';
+        return;
+      }
+      document.getElementById('adm-who').textContent = 'Logado como ' + (w.email || '');
+      mostrar('adm-panel');
+      carregarTudo();
+    }).catch(function(){
+      mostrar('adm-denied');
+      document.getElementById('adm-denied-txt').textContent = 'Não foi possível validar o acesso.';
+    });
+  });
+</script>
+</body>
+</html>
